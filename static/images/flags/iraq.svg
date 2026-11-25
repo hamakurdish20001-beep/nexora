@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600">
+  <rect width="900" height="200" fill="#ce1126"/>
+  <rect y="200" width="900" height="200" fill="#ffffff"/>
+  <rect y="400" width="900" height="200" fill="#000000"/>
+  <g fill="#007a3d" transform="translate(450, 300) scale(0.9)">
+    <!-- Stylized Arabic Kufic script: الله أكبر -->
+    <path d="M-190,-45 h15 v85 h-15 z M-160,-45 h15 v85 h-15 z M-130,-45 h15 v85 h-15 z M-95,-15 h22 v55 h-22 z M-190,30 h80 v10 h-80 z M-50,-45 h15 v85 h-15 z M-20,-45 h15 v85 h-15 z M10,-20 h25 v60 h-25 z M-50,30 h85 v10 h-85 z M60,-45 h15 v85 h-15 z M90,-30 h25 v70 h-25 z M130,-45 h15 v85 h-15 z M160,-20 h25 v60 h-25 z M60,30 h125 v10 h-125 z"/>
+  </g>
+</svg>

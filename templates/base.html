@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="ku" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}NEXORA | باشترین کەلوپەلی گەیمینگ{% endblock %}</title>
+
+    <script>
+    (function () {
+        try {
+            var l = localStorage.getItem("nexora_lang") || "ku";
+            var th = localStorage.getItem("nexora_theme") || "dark";
+            var d = document.documentElement;
+            d.lang = l;
+            d.dir = (l === "en") ? "ltr" : "rtl";
+            d.setAttribute("data-theme", th);
+        } catch (e) {}
+    })();
+
+    // سیستەمی دڵخواز (Wishlist Core) - لە سەرەتای پەڕە دادەنرێت بۆ ئەوەی ڕاستەوخۆ کار بکات
+    function getWishlist() {
+        try {
+            var raw = JSON.parse(localStorage.getItem("nexora_wishlist"));
+            if (Array.isArray(raw)) {
+                return raw.map(function (x) { return parseInt(x, 10); }).filter(function (x) { return !isNaN(x) && x > 0; });
+            }
+            return [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveWishlist(list) {
+        if (!Array.isArray(list)) list = [];
+        localStorage.setItem("nexora_wishlist", JSON.stringify(list));
+        updateWishlistCount();
+        syncWishlistButtons();
+    }
+
+    function updateWishlistCount() {
+        var count = getWishlist().length;
+        var el = document.getElementById("wishlistCount");
+        if (el) {
+            el.textContent = count;
+            el.style.display = count > 0 ? "flex" : "none";
+        }
+    }
+
+    function syncWishlistButtons() {
+        var list = getWishlist();
+        document.querySelectorAll(".wishlist-btn").forEach(function (btn) {
+            var id = parseInt(btn.dataset.id || btn.getAttribute("data-id"), 10);
+            if (list.indexOf(id) !== -1) {
+                btn.classList.add("active");
+            } else {
+                btn.classList.remove("active");
+            }
+        });
+    }
+
+    function showToast(msg) {
+        var toast = document.getElementById("nexoraToast");
+        if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "nexoraToast";
+            toast.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,20,32,0.95);border:1px solid #f59e0b;box-shadow:0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(245,158,11,0.4);color:#fff;padding:12px 24px;border-radius:30px;font-weight:700;font-size:0.95rem;z-index:9999;transition:all 0.3s;opacity:0;pointer-events:none;";
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = "1";
+        toast.style.transform = "translateX(-50%) translateY(-6px)";
+        setTimeout(function () {
+            toast.style.opacity = "0";
+            toast.style.transform = "translateX(-50%) translateY(0)";
+        }, 2200);
+    }
+
+    function toggleWishlist(id, btn) {
+        id = parseInt(id, 10);
+        if (isNaN(id) || id <= 0) return;
+        var list = getWishlist();
+        var idx = list.indexOf(id);
+        var added = false;
+        if (idx === -1) {
+            list.push(id);
+            added = true;
+            showToast("زیاد کرا بۆ لیستی دڵخواز ❤️");
+        } else {
+            list.splice(idx, 1);
+            showToast("لابردرا لە لیستی دڵخواز 🤍");
+        }
+        saveWishlist(list);
+        if (btn) {
+            if (added) btn.classList.add("active");
+            else btn.classList.remove("active");
+        }
+    }
+
+    window.getWishlist = getWishlist;
+    window.saveWishlist = saveWishlist;
+    window.updateWishlistCount = updateWishlistCount;
+    window.syncWishlistButtons = syncWishlistButtons;
+    window.showToast = showToast;
+    window.toggleWishlist = toggleWishlist;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        updateWishlistCount();
+        syncWishlistButtons();
+    });
+    </script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=nexora_v14_wishlist_head_fix">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/product.css') }}?v=nexora_v14_wishlist_head_fix">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark.css') }}?v=nexora_v14_wishlist_head_fix">
+</head>
+<body>
+
+    <!-- هێدەر -->
+    {% include "includes/header.html" %}
+
+    <!-- بانەری تێلەگرام بە پانایی تەواو و ناوەڕۆک لە ڕێکی ناوەڕاست -->
+    <div class="banner-outer">
+        <div class="telegram-banner-card">
+            <div class="telegram-banner-center">
+                <span class="telegram-circle-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+                </span>
+                <span class="telegram-banner-text" data-i18n="telegram.banner">سەردانی کەناڵی تێلەگرامەکەمان بکە</span>
+                <span class="telegram-circle-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+                </span>
+                <a href="https://t.me/manesalar" target="_blank" rel="noopener" class="telegram-pill-btn">
+                    <span class="telegram-pill-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+                    </span>
+                    <span data-i18n="telegram.btn">بڕۆ بۆ کەناڵ</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- سایدبار (Drawer Menu) -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar(event)"></div>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title" data-i18n="sidebar.menu">مێنوو</span>
+            <button type="button" class="sidebar-close" onclick="closeSidebar(event)" aria-label="Close">✕</button>
+        </div>
+        <div class="sidebar-body">
+            <a href="/" class="sidebar-link">
+                <span>🏠</span>
+                <span data-i18n="nav.home">سەرەکی</span>
+            </a>
+            <a href="/products" class="sidebar-link">
+                <span>🛍️</span>
+                <span data-i18n="nav.all_products">هەموو بەشەکان</span>
+            </a>
+
+            <!-- Dropdown بڕاندەکان -->
+            <div class="sidebar-dropdown">
+                <button type="button" class="sidebar-link sidebar-dropdown-toggle" onclick="toggleBrandsDropdown(this, event)">
+                    <span style="display:flex; align-items:center; gap:10px;">
+                        <span>🏷️</span>
+                        <span data-i18n="sidebar.brands">بڕاندەکان</span>
+                    </span>
+                    <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="sidebar-dropdown-content">
+                    {% for b in all_brands %}
+                    <a href="{{ url_for('all_products', brand=b['name']) }}" class="sidebar-link" style="font-size:0.88rem; padding:6px 10px;">
+                        {{ b['name'] }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <div class="sidebar-section-title" data-i18n="sidebar.categories">بەشەکان</div>
+            {% for c in all_categories %}
+            <a href="{{ url_for('category', slug=c['slug']) }}" class="sidebar-link">
+                <img src="{{ url_for('static', filename='images/categories/' ~ c['slug'] ~ '.webp') }}"
+                     alt="" class="cat-sidebar-icon" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/categories/' ~ c['slug'] ~ '.png') }}'">
+                <span data-ku="{{ c['name_ku'] }}" data-ar="{{ c['name_ar'] }}" data-en="{{ c['name_en'] }}">{{ c['name_ku'] }}</span>
+            </a>
+            {% endfor %}
+
+            <div class="sidebar-divider"></div>
+
+            <a href="/wishlist" class="sidebar-link">
+                <span>❤️</span>
+                <span data-i18n="nav.wishlist">لیستی دڵخواز</span>
+            </a>
+            <a href="/cart" class="sidebar-link">
+                <span>🛒</span>
+                <span data-i18n="nav.cart">سەبەتە</span>
+            </a>
+
+            {% if is_admin %}
+            <div class="sidebar-divider"></div>
+            <a href="/admin" class="sidebar-link" style="color:var(--amber); font-weight:700;">
+                <span>⚙️</span>
+                <span data-i18n="admin.dashboard">داشبۆردی بەڕێوبەر</span>
+            </a>
+            <a href="/admin/logout" class="sidebar-link" style="color:var(--danger); font-weight:700;">
+                <span>🚪</span>
+                <span data-i18n="admin.logout">دەرچوون</span>
+            </a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- مۆداڵی گەڕانی خێرا -->
+    <div id="searchModal" class="search-modal" onclick="if(event.target===this) closeSearch()">
+        <div class="search-box">
+            <div class="search-input-wrap">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="modalSearchInput" placeholder="گەڕان بۆ کاڵا..." data-i18n-ph="search.placeholder" oninput="onSearchInput(this.value)">
+                <button type="button" class="search-close-btn" onclick="closeSearch()" aria-label="Close">✕</button>
+            </div>
+            <div id="modalSearchResults" class="search-results">
+                <p style="color:var(--muted); text-align:center; padding:20px;" data-i18n="search.quick_hint">لانی کەم ٢ پیت بنووسە بۆ گەڕانی خێرا</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ناوەڕۆکی لاپەڕە -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- فووتەر -->
+    {% include "includes/footer.html" %}
+
+    <!-- دوگمەی گەڕانەوە بۆ سەرەوە (Scroll To Top) -->
+    <button id="scrollTopBtn" class="scroll-top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})" aria-label="بڕۆ بۆ سەرەوە" title="بڕۆ بۆ سەرەوە">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#000000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+    </button>
+
+    <script src="{{ url_for('static', filename='js/lang.js') }}?v=nexora_v14_wishlist_head_fix"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}?v=nexora_v14_wishlist_head_fix"></script>
+    <script src="{{ url_for('static', filename='js/cart.js') }}?v=nexora_v14_wishlist_head_fix"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=nexora_v14_wishlist_head_fix"></script>
+
+    <script>
+        // بەڕێوەبردنی سایدبار (کردنەوە و داخستنی خێرا بە بێ کێشە)
+        function openSidebar(e) {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
+            var sidebar = document.getElementById("sidebar");
+            var overlay = document.getElementById("sidebarOverlay");
+            if (sidebar) sidebar.classList.add("active");
+            if (overlay) overlay.classList.add("active");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeSidebar(e) {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
+            var sidebar = document.getElementById("sidebar");
+            var overlay = document.getElementById("sidebarOverlay");
+            if (sidebar) sidebar.classList.remove("active");
+            if (overlay) overlay.classList.remove("active");
+            document.body.style.overflow = "";
+        }
+
+        function toggleSidebar(e) {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
+            var sidebar = document.getElementById("sidebar");
+            if (!sidebar) return;
+            if (sidebar.classList.contains("active")) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        }
+
+        function toggleBrandsDropdown(btn, e) {
+            if (e) {
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            }
+            var dropdown = btn ? btn.closest(".sidebar-dropdown") : document.querySelector(".sidebar-dropdown");
+            if (dropdown) {
+                dropdown.classList.toggle("open");
+            }
+        }
+        window.openSidebar = openSidebar;
+        window.closeSidebar = closeSidebar;
+        window.toggleSidebar = toggleSidebar;
+        window.toggleBrandsDropdown = toggleBrandsDropdown;
+
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape") closeSidebar();
+        });
+
+        // تۆمارکردنی Service Worker بۆ لاپەڕەی ئۆفلاینی پرتەقاڵی
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(){});
+            });
+        }
+    </script>
+</body>
+</html>

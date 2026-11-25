@@ -1,0 +1,84 @@
+/* ===== لایت مۆد (Light Theme) ===== */
+[data-theme="light"] {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --card-surface: #f1f5f9;
+    --border: #e2e8f0;
+    --border-light: #cbd5e1;
+    --text: #070709;
+    --muted: #64748b;
+    --amber: #d97706;
+    --amber-soft: #b45309;
+    --purple: #d97706;
+    --purple-soft: #b45309;
+    --cyan: #d97706;
+    --amber-glow: rgba(217, 119, 6, 0.25);
+    --purple-glow: rgba(217, 119, 6, 0.25);
+    --cyan-glow: rgba(217, 119, 6, 0.25);
+}
+
+[data-theme="light"] .site-header {
+    background: rgba(255, 255, 255, 0.94);
+}
+
+[data-theme="light"] .sidebar {
+    background: #ffffff;
+}
+
+[data-theme="light"] .search-box {
+    background: #ffffff;
+}
+
+[data-theme="light"] .hero {
+    background:
+        radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.12), transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(217, 119, 6, 0.1), transparent 45%),
+        var(--bg);
+}
+
+[data-theme="light"] .logo img {
+    background: #0a0a0f;
+    border-radius: 10px;
+    padding: 4px 10px;
+}
+
+[data-theme="light"] .product-card::after {
+    background: #ffffff;
+}
+
+[data-theme="light"] .marquee-section {
+    background: #f1f5f9;
+}
+
+[data-theme="light"] .site-footer {
+    background: #070709;
+    color: #f8fafc;
+}
+
+[data-theme="light"] .site-footer p {
+    color: #94a3b8;
+}
+
+[data-theme="light"] .site-footer .footer-links-list a {
+    color: #94a3b8;
+}
+
+[data-theme="light"] .site-footer .footer-links-list a:hover {
+    color: #f59e0b;
+}
+
+[data-theme="light"] .copyright {
+    border-color: #1e1e26;
+    color: #94a3b8;
+}
+
+/* LTR Direction Specifics */
+[dir="ltr"] .product-card .badge {
+    right: auto;
+    left: 10px;
+}
+
+[dir="ltr"] .product-card .wishlist-btn {
+    left: auto;
+    right: 10px;
+}

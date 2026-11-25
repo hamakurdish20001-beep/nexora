@@ -1,0 +1,1086 @@
+{% extends "base.html" %}
+
+{% block title %}داشبۆردی بەڕێوبەرایەتی | NEXORA{% endblock %}
+
+{% block content %}
+<section class="container admin-dashboard-wrap">
+
+    <div class="section-header" style="margin-bottom:24px;">
+        <h1 class="section-title">
+            <span>⚙️</span>
+            <span data-i18n="admin.dashboard">داشبۆردی بەڕێوبەرایەتی</span>
+        </h1>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span style="color:var(--amber); font-weight:700;">👤 {{ admin_username }}</span>
+            <a href="{{ url_for('admin_logout') }}" class="btn-filter-reset" style="background:rgba(239,68,68,0.15); border-radius:var(--radius-sm);" data-i18n="admin.logout">دەرچوون</a>
+        </div>
+    </div>
+
+    <div class="admin-tabs">
+        <button type="button" class="admin-tab-btn active" data-tab="reports">
+            <span>📊</span> <span>ڕاپۆرتەکان (ڕۆژانە، هەفتانە، مانگانە، ساڵانە)</span>
+            <span class="tab-badge-pill">خولی</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="orders">
+            <span>📦</span> <span data-i18n="admin.orders">داواکارییەکان</span>
+            <span class="tab-badge-pill">{{ orders|length }}</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="companies">
+            <span>🏢</span> <span>کۆمپانیا و گەیاندن</span>
+            <span class="tab-badge-pill">{{ brand_partners|length + delivery_companies|length + service_suppliers|length }}</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="products">
+            <span>🏷️</span> <span data-i18n="admin.products">کاڵاکان</span>
+            <span class="tab-badge-pill">{{ products|length }}</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="discounts">
+            <span>🏷️</span> <span>بەرهەمە داشکێنراوەکان</span>
+            <span class="tab-badge-pill" style="background:rgba(239,68,68,0.25); color:#ef4444; border-color:rgba(239,68,68,0.5);">{{ discounted_products|length }}</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="categories">
+            <span>📁</span> <span data-i18n="admin.categories">هاوپۆلەکان</span>
+            <span class="tab-badge-pill">{{ categories|length }}</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="brands">
+            <span>⭐</span> <span data-i18n="admin.brands">بڕاندەکان</span>
+            <span class="tab-badge-pill">{{ brands|length }}</span>
+        </button>
+        <button type="button" class="admin-tab-btn" data-tab="users">
+            <span>👥</span> <span data-i18n="admin.users">بەکارهێنەران</span>
+            <span class="tab-badge-pill">{{ admins|length }}</span>
+        </button>
+    </div>
+
+
+<div id="tab-reports" class="admin-tab-content">
+    <!-- کارتی ئامارە گشتییەکان (Stats Grid) -->
+        <div class="admin-stats-grid" style="margin-bottom:24px;">
+            <div class="admin-stat-card">
+                <span class="label">کۆی گشتی فرۆش (داهات)</span>
+                <span class="value" style="color:var(--amber);">{{ total_sales_iqd | iqd_fmt }}</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="label">فرۆشی ئەمڕۆ (ڕۆژانە)</span>
+                <span class="value" style="color:#38bdf8;">{{ today_sales_iqd | iqd_fmt }}</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="label">فرۆشی ئەم هەفتەیە</span>
+                <span class="value" style="color:#fbbf24;">{{ week_sales_iqd | iqd_fmt }}</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="label">فرۆشی ئەم مانگە</span>
+                <span class="value" style="color:#f59e0b;">{{ month_sales_iqd | iqd_fmt }}</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="label">کۆی داواکارییەکان</span>
+                <span class="value" style="color:#fff;">{{ total_orders }}</span>
+            </div>
+            <div class="admin-stat-card">
+                <span class="label">کۆی بەرهەمەکان</span>
+                <span class="value" style="color:#fff;">{{ total_products }}</span>
+            </div>
+        </div>
+
+        <div class="reports-header" style="margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+            <div>
+                <h2 style="font-size:1.35rem; font-weight:800; color:var(--amber-soft); margin-bottom:4px;">📊 ڕاپۆرتی شیکاری فرۆش و داهات</h2>
+                <p style="color:var(--muted); font-size:0.9rem; margin:0;">بەرچاوڕوونی وردی داهات بەپێی ڕۆژانە، هەفتانە، مانگانە و ساڵانە</p>
+            </div>
+            <div class="report-period-pills" style="display:flex; gap:8px; background:#111118; padding:4px; border-radius:10px; border:1px solid var(--border);">
+                <button type="button" class="report-pill active" onclick="switchReportPeriod('all', this)">هەمووی</button>
+                <button type="button" class="report-pill" onclick="switchReportPeriod('daily', this)">ئەمڕۆ (ڕۆژانە)</button>
+                <button type="button" class="report-pill" onclick="switchReportPeriod('weekly', this)">هەفتانە</button>
+                <button type="button" class="report-pill" onclick="switchReportPeriod('monthly', this)">مانگانە</button>
+                <button type="button" class="report-pill" onclick="switchReportPeriod('yearly', this)">ساڵانە</button>
+            </div>
+        </div>
+
+        <!-- کارتی ئاماری ٤ کاتەکە -->
+        <div class="admin-stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-bottom:28px;">
+            <!-- ڕۆژانە -->
+            <div class="admin-stat-card report-period-card" data-period="daily" style="border-top:3px solid #38bdf8;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="label" style="font-weight:700; color:#38bdf8;">☀️ ڕاپۆرتی ئەمڕۆ (ڕۆژانە)</span>
+                    <span style="font-size:0.75rem; background:rgba(56,189,248,0.15); color:#38bdf8; padding:2px 8px; border-radius:10px;">ئەمڕۆ</span>
+                </div>
+                <span class="value" style="color:#ffffff;">{{ today_sales_iqd | iqd_fmt }}</span>
+                <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--muted); border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+                    <span>📦 {{ today_orders|length }} داواکاری</span>
+                    <span style="color:#10b981;">✓ {{ today_completed }} تەواو</span>
+                    <span style="color:#f59e0b;">⏳ {{ today_pending }} چاوەڕوان</span>
+                </div>
+            </div>
+
+            <!-- هەفتانە -->
+            <div class="admin-stat-card report-period-card" data-period="weekly" style="border-top:3px solid #fbbf24;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="label" style="font-weight:700; color:#fbbf24;">📅 ڕاپۆرتی ٧ ڕۆژ (هەفتانە)</span>
+                    <span style="font-size:0.75rem; background:rgba(251,191,36,0.15); color:#fbbf24; padding:2px 8px; border-radius:10px;">٧ ڕۆژ</span>
+                </div>
+                <span class="value" style="color:#ffffff;">{{ week_sales_iqd | iqd_fmt }}</span>
+                <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--muted); border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+                    <span>📦 {{ week_orders|length }} داواکاری</span>
+                    <span style="color:#10b981;">✓ {{ week_completed }} تەواو</span>
+                    <span style="color:#f59e0b;">⏳ {{ week_pending }} چاوەڕوان</span>
+                </div>
+            </div>
+
+            <!-- مانگانە -->
+            <div class="admin-stat-card report-period-card" data-period="monthly" style="border-top:3px solid #10b981;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="label" style="font-weight:700; color:#10b981;">🗓️ ڕاپۆرتی ئەم مانگە (مانگانە)</span>
+                    <span style="font-size:0.75rem; background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:10px;">مانگ</span>
+                </div>
+                <span class="value" style="color:#ffffff;">{{ month_sales_iqd | iqd_fmt }}</span>
+                <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--muted); border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+                    <span>📦 {{ month_orders|length }} داواکاری</span>
+                    <span style="color:#10b981;">✓ {{ month_completed }} تەواو</span>
+                    <span style="color:#f59e0b;">⏳ {{ month_pending }} چاوەڕوان</span>
+                </div>
+            </div>
+
+            <!-- ساڵانە -->
+            <div class="admin-stat-card report-period-card" data-period="yearly" style="border-top:3px solid #f97316;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="label" style="font-weight:700; color:#f97316;">⭐ ڕاپۆرتی ئەمساڵ (ساڵانە)</span>
+                    <span style="font-size:0.75rem; background:rgba(249,115,22,0.15); color:#f97316; padding:2px 8px; border-radius:10px;">ساڵ</span>
+                </div>
+                <span class="value" style="color:#ffffff;">{{ year_sales_iqd | iqd_fmt }}</span>
+                <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--muted); border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+                    <span>📦 {{ year_orders|length }} داواکاری</span>
+                    <span style="color:#10b981;">✓ {{ year_completed }} تەواو</span>
+                    <span style="color:#f59e0b;">⏳ {{ year_pending }} چاوەڕوان</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- چارتێکی مۆدێرن بۆ فرۆشی ٧ ڕۆژی ڕابردوو -->
+        <div class="reports-chart-card" style="background:#0e0e14; border:1px solid rgba(245,158,11,0.25); border-radius:14px; padding:22px; margin-bottom:30px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.3rem;">📈</span>
+                    <div>
+                        <h3 style="margin:0; font-size:1.1rem; color:#ffffff; font-weight:800;">هێڵکاری فرۆش بەپێی ڕۆژەکانی ئەم هەفتەیە</h3>
+                        <span style="font-size:0.8rem; color:var(--muted);">بەراوردکاری داهات لە نێوان ٧ ڕۆژی کۆتایی</span>
+                    </div>
+                </div>
+                <span dir="ltr" style="font-size:0.85rem; color:var(--amber); font-weight:700; background:rgba(245,158,11,0.1); padding:4px 12px; border-radius:20px; border:1px solid rgba(245,158,11,0.3);">
+                    کۆی هەفتانە: {{ week_sales_iqd | iqd_fmt }}
+                </span>
+            </div>
+
+            <!-- هێڵکاری ستوونی (Bar Chart) -->
+            <div class="bar-chart-container" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:12px; align-items:end; min-height:220px; padding-top:35px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                {% for d in chart_days %}
+                <div class="chart-col" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
+                    <span style="font-size:0.75rem; color:#fbbf24; font-weight:700; margin-bottom:6px; white-space:nowrap;" dir="ltr">
+                        {% if d.sales > 0 %}{{ (d.sales / 1000) | int }}k{% else %}0{% endif %}
+                    </span>
+                    <div style="width:100%; max-width:48px; background:rgba(255,255,255,0.04); border-radius:8px 8px 0 0; height:170px; display:flex; align-items:flex-end; position:relative;">
+                        <div class="bar-fill" style="width:100%; height:{{ d.percent }}%; background:linear-gradient(180deg, #fbbf24 0%, #d97706 100%); border-radius:6px 6px 0 0; box-shadow:0 0 14px rgba(245,158,11,0.45); transition:height 0.8s ease;" title="{{ d.day_name }}: {{ d.sales | iqd_fmt }} ({{ d.orders_count }} داواکاری)"></div>
+                    </div>
+                    <span style="margin-top:10px; font-size:0.82rem; font-weight:700; color:var(--text);"><bdi>{{ d.day_name }}</bdi></span>
+                    <span style="font-size:0.7rem; color:var(--muted);" dir="ltr">{{ d.orders_count }} داواکاری</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- خشتەی پڕفرۆشترین بەرهەمەکان و دابەشبوونی شارەکان -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
+            <!-- پڕفرۆشترین بەرهەمەکان -->
+            <div class="admin-table-box" style="padding:18px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                    <span style="font-size:1.2rem;">🔥</span>
+                    <h3 style="margin:0; font-size:1.05rem; color:var(--amber-soft); font-weight:800;">پڕفرۆشترین کاڵاکان</h3>
+                </div>
+                <table class="admin-table" style="font-size:0.86rem;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>کاڵا</th>
+                            <th>ژمارە</th>
+                            <th>کۆی فرۆش</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in top_products %}
+                        <tr>
+                            <td dir="ltr" style="text-align:right;">
+                                {% if loop.index == 1 %}<span style="color:#fbbf24; font-weight:900;">🥇 1</span>
+                                {% elif loop.index == 2 %}<span style="color:#cbd5e1; font-weight:900;">🥈 2</span>
+                                {% elif loop.index == 3 %}<span style="color:#d97706; font-weight:900;">🥉 3</span>
+                                {% else %}<span>#{{ loop.index }}</span>{% endif %}
+                            </td>
+                            <td><strong><bdi>{{ p.name }}</bdi></strong></td>
+                            <td><span style="background:rgba(245,158,11,0.15); color:var(--amber); padding:2px 8px; border-radius:8px; font-weight:700;" dir="ltr">{{ p.qty }} دانە</span></td>
+                            <td dir="ltr" style="text-align:right;"><strong style="color:#10b981;">{{ p.total | iqd_fmt }}</strong></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" style="text-align:center; color:var(--muted); padding:16px;">هیچ داتایەک نییە</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- دابەشبوونی شارەکان -->
+            <div class="admin-table-box" style="padding:18px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                    <span style="font-size:1.2rem;">📍</span>
+                    <h3 style="margin:0; font-size:1.05rem; color:var(--amber-soft); font-weight:800;">داواکارییەکان بەپێی شار</h3>
+                </div>
+                <table class="admin-table" style="font-size:0.86rem;">
+                    <thead>
+                        <tr>
+                            <th>شار</th>
+                            <th>داواکاری</th>
+                            <th>کۆی داهات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in top_cities %}
+                        <tr>
+                            <td><strong><bdi>{{ c.city }}</bdi></strong></td>
+                            <td><span style="background:rgba(56,189,248,0.15); color:#38bdf8; padding:2px 8px; border-radius:8px; font-weight:700;" dir="ltr">{{ c.orders_count }} داواکاری</span></td>
+                            <td dir="ltr" style="text-align:right;"><strong style="color:#10b981;">{{ c.total | iqd_fmt }}</strong></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" style="text-align:center; color:var(--muted); padding:16px;">هیچ داتایەک نییە</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<div id="tab-orders" class="admin-tab-content" style="display:none;">
+        <div class="admin-table-box">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>کڕیار</th>
+                        <th>تەلەفۆن</th>
+                        <th>ناونیشان</th>
+                        <th>کاڵاکان</th>
+                        <th>کۆی کاڵاکان</th>
+                        <th>گەیاندن</th>
+                        <th>کۆی کۆتایی</th>
+                        <th>دۆخ</th>
+                        <th>کردار</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in orders %}
+                    <tr>
+                        <td dir="ltr" style="text-align:right;"><strong>#{{ o.id }}</strong></td>
+                        <td><strong>{{ o.full_name }}</strong></td>
+                        <td><span dir="ltr" style="display:inline-block; font-family:monospace; font-weight:700;"><bdi>{{ o.phone }}</bdi></span></td>
+                        <td>{{ o.city }} - {{ o.neighborhood }}</td>
+                        <td>
+                            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:4px; font-size:0.85rem;">
+                                {% for item in o.order_items %}
+                                <li style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-weight:600;"><bdi>{{ item.name }}</bdi></span>
+                                    <span dir="ltr" style="display:inline-block; font-size:0.75rem; font-weight:800; background:rgba(245,158,11,0.15); color:#fbbf24; padding:1px 6px; border-radius:6px; border:1px solid rgba(245,158,11,0.25);">×{{ item.qty }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td dir="ltr" style="text-align:right;">{{ o.subtotal_iqd | iqd_fmt }}</td>
+                        <td dir="ltr" style="text-align:right;">{{ o.delivery_fee | iqd_fmt }}</td>
+                        <td dir="ltr" style="text-align:right;"><strong style="color:var(--amber-soft);">{{ o.grand_total | iqd_fmt }}</strong></td>
+                        <td>
+                            <form method="post" action="{{ url_for('admin_order_status', order_id=o.id) }}" style="display:inline;">
+                                <select name="status" onchange="this.form.submit()" style="background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:4px 8px; font-size:0.82rem;">
+                                    <option value="pending" {% if o.status == 'pending' %}selected{% endif %}>چاوەڕوانکراو</option>
+                                    <option value="completed" {% if o.status == 'completed' %}selected{% endif %}>تەواوکراو</option>
+                                    <option value="cancelled" {% if o.status == 'cancelled' %}selected{% endif %}>هەڵوەشێنراوە</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="{{ url_for('admin_order_delete', order_id=o.id) }}" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم داواکارییە؟');" style="display:inline;">
+                                <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="10" style="text-align:center; padding:30px; color:var(--muted);">هیچ داواکارییەک تۆمار نەکراوە.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- ناوەڕۆکی تابی کۆمپانیاکان (براند، گەیاندن، خزمەتگوزاری) -->
+
+    <div id="tab-companies" class="admin-tab-content" style="display:none;">
+        <div class="companies-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.35rem; font-weight:800; color:var(--amber-soft); margin-bottom:4px;">🏢 بەڕێوەبردنی کۆمپانیا و خزمەتگوزارییەکان</h2>
+            <p style="color:var(--muted); font-size:0.9rem; margin:0;">داتابەیسی دابەشکەرانی براندەکان، کۆمپانیاکانی گەیاندن و دابینکەرانی پێداویستی</p>
+        </div>
+
+        <!-- بەشی ١: کۆمپانیاکانی براندەکان -->
+        <div style="background:#0e0e14; border:1px solid rgba(245,158,11,0.25); border-radius:14px; padding:22px; margin-bottom:30px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.3rem;">🏷️</span>
+                    <div>
+                        <h3 style="margin:0; font-size:1.15rem; color:#ffffff; font-weight:800;">کۆمپانیا و دابەشکەرانی براندەکان (Brand Partners)</h3>
+                        <span style="font-size:0.82rem; color:var(--muted);">دابەشکەری فەرمی براندە جیهانییەکانی گەیمینگ</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-submit" onclick="toggleCompanyForm('addBrandPartnerForm')" style="width:auto; padding:8px 16px; margin:0; font-size:0.85rem;">
+                    ➕ زیادکردنی براندی نوێ
+                </button>
+            </div>
+
+            <!-- فۆرمی زیادکردنی براند -->
+            <div id="addBrandPartnerForm" class="collapsible-admin-form" style="display:none; background:#14141c; border:1px solid var(--border); border-radius:10px; padding:18px; margin-bottom:20px;">
+                <form method="post" action="{{ url_for('admin_brand_partner_add') }}">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">ناوی براند *</label>
+                            <input type="text" name="brand_name" required placeholder="وەک: Logitech G" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">ناوی کۆمپانیا / دابەشکەر *</label>
+                            <input type="text" name="company_name" required placeholder="ناوی کۆمپانیا" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">کەسی بەرپرس</label>
+                            <input type="text" name="contact_person" placeholder="کاک فڵان" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">ژمارەی تەلەفۆن *</label>
+                            <input type="text" name="phone" required placeholder="0750 xxx xxxx" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">ئیمەیڵ</label>
+                            <input type="email" name="email" placeholder="partner@brand.com" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">شار و ناونیشان</label>
+                            <input type="text" name="address" placeholder="شار، شەقام" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">تێبینی و وردەکاری گەرەنتی</label>
+                        <input type="text" name="notes" placeholder="مەرجەکانی گەرەنتی، وەرگرتنی کاڵا" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:auto; padding:8px 24px;">پاشەکەوتکردن</button>
+                </form>
+            </div>
+
+            <!-- خشتەی براندەکان -->
+            <div class="admin-table-box">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>براند</th>
+                            <th>کۆمپانیا / دابەشکەر</th>
+                            <th>کەسی بەرپرس</th>
+                            <th>پەیوەندی (تەلەفۆن / واتسئەپ)</th>
+                            <th>ناونیشان</th>
+                            <th>تێبینی</th>
+                            <th>دۆخ</th>
+                            <th>کردار</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in brand_partners %}
+                        <tr>
+                            <td><strong style="color:var(--amber);"><bdi>{{ b.brand_name }}</bdi></strong></td>
+                            <td><bdi>{{ b.company_name }}</bdi></td>
+                            <td>{{ b.contact_person or '-' }}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <a href="tel:{{ b.phone }}" dir="ltr" style="color:#38bdf8; text-decoration:none; font-weight:700; font-family:monospace;"><bdi>{{ b.phone }}</bdi></a>
+                                    <a href="https://wa.me/{{ b.phone|replace(' ', '')|replace('+', '') }}" target="_blank" rel="noopener" style="background:#22c55e; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem; text-decoration:none;">WA</a>
+                                </div>
+                            </td>
+                            <td>{{ b.city or '' }} {{ b.address or '' }}</td>
+                            <td style="font-size:0.82rem; color:var(--muted); max-width:200px;">{{ b.notes or '-' }}</td>
+                            <td><span class="status-badge completed">{{ b.status }}</span></td>
+                            <td>
+                                <form method="post" action="{{ url_for('admin_brand_partner_delete', partner_id=b.id) }}" onsubmit="return confirm('دڵنیایت لە سڕینەوە؟');" style="display:inline;">
+                                    <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--muted);">هیچ کۆمپانیایەکی براند تۆمار نەکراوە.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- بەشی ٢: کۆمپانیاکانی گەیاندن -->
+        <div style="background:#0e0e14; border:1px solid rgba(245,158,11,0.25); border-radius:14px; padding:22px; margin-bottom:30px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.3rem;">🚚</span>
+                    <div>
+                        <h3 style="margin:0; font-size:1.15rem; color:#ffffff; font-weight:800;">کۆمپانیاکانی گەیاندن (Delivery Companies)</h3>
+                        <span style="font-size:0.82rem; color:var(--muted);">کۆمپانیا و پۆستەی گەیاندنی کاڵا بۆ شارەکانی کوردستان و عێراق</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-submit" onclick="toggleCompanyForm('addDeliveryCompanyForm')" style="width:auto; padding:8px 16px; margin:0; font-size:0.85rem;">
+                    ➕ زیادکردنی کۆمپانیای گەیاندن
+                </button>
+            </div>
+
+            <!-- فۆرمی زیادکردنی کۆمپانیای گەیاندن -->
+            <div id="addDeliveryCompanyForm" class="collapsible-admin-form" style="display:none; background:#14141c; border:1px solid var(--border); border-radius:10px; padding:18px; margin-bottom:20px;">
+                <form method="post" action="{{ url_for('admin_delivery_company_add') }}">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">ناوی کۆمپانیای گەیاندن *</label>
+                            <input type="text" name="name" required placeholder="وەک: فست دلیڤەری" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">تەلەفۆن *</label>
+                            <input type="text" name="phone" required placeholder="0750 xxx xxxx" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">شارە داپۆشراوەکان *</label>
+                            <input type="text" name="coverage_cities" required placeholder="هەولێر، سلێمانی، دهۆک..." style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">کرێی گەیاندن (IQD)</label>
+                            <input type="number" name="fee_iqd" value="5000" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">کەسی بەرپرس</label>
+                            <input type="text" name="contact_person" placeholder="ناوی بەرپرسی گەیاندن" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">کاتی گەیاندن</label>
+                            <input type="text" name="delivery_time" placeholder="وەک: ٢٤ بۆ ٤٨ کاتژمێر" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">تێبینی</label>
+                        <input type="text" name="notes" placeholder="مەرجی وەرگرتنی کاڵا یان کۆد" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:auto; padding:8px 24px;">پاشەکەوتکردن</button>
+                </form>
+            </div>
+
+            <!-- خشتەی کۆمپانیاکانی گەیاندن -->
+            <div class="admin-table-box">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>کۆمپانیا</th>
+                            <th>تەلەفۆن</th>
+                            <th>شارەکان</th>
+                            <th>کرێی گەیاندن</th>
+                            <th>کاتی گەیاندن</th>
+                            <th>کەسی بەرپرس</th>
+                            <th>دۆخ</th>
+                            <th>کردار</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in delivery_companies %}
+                        <tr>
+                            <td><strong style="color:#38bdf8;"><bdi>{{ d.name }}</bdi></strong></td>
+                            <td>
+                                <a href="tel:{{ d.phone }}" dir="ltr" style="display:inline-block; font-family:monospace; color:#ffffff; text-decoration:none;"><bdi>{{ d.phone }}</bdi></a>
+                            </td>
+                            <td><span style="font-size:0.82rem; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:6px;"><bdi>{{ d.coverage_cities }}</bdi></span></td>
+                            <td dir="ltr" style="text-align:right;"><strong style="color:var(--amber);">{{ d.fee_iqd | iqd_fmt }}</strong></td>
+                            <td>{{ d.delivery_time or '-' }}</td>
+                            <td>{{ d.contact_person or '-' }}</td>
+                            <td><span class="status-badge completed">{{ d.status }}</span></td>
+                            <td>
+                                <form method="post" action="{{ url_for('admin_delivery_company_delete', company_id=d.id) }}" onsubmit="return confirm('دڵنیایت لە سڕینەوە؟');" style="display:inline;">
+                                    <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--muted);">هیچ کۆمپانیایەکی گەیاندن تۆمار نەکراوە.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- بەشی ٣: خزمەتگوزاری و دابینکەرانی تر -->
+        <div style="background:#0e0e14; border:1px solid rgba(245,158,11,0.25); border-radius:14px; padding:22px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.3rem;">🛠️</span>
+                    <div>
+                        <h3 style="margin:0; font-size:1.15rem; color:#ffffff; font-weight:800;">خزمەتگوزاری و دابینکەرە پێویستەکان (Essential Suppliers)</h3>
+                        <span style="font-size:0.82rem; color:var(--muted);">چاککردنەوەی هاردوێر، پاکێجینگ و کارتۆن، پارچەی یەدەگ</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-submit" onclick="toggleCompanyForm('addSupplierForm')" style="width:auto; padding:8px 16px; margin:0; font-size:0.85rem;">
+                    ➕ زیادکردنی دابینکەر
+                </button>
+            </div>
+
+            <!-- فۆرمی زیادکردنی دابینکەر -->
+            <div id="addSupplierForm" class="collapsible-admin-form" style="display:none; background:#14141c; border:1px solid var(--border); border-radius:10px; padding:18px; margin-bottom:20px;">
+                <form method="post" action="{{ url_for('admin_service_supplier_add') }}">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">ناوی دابینکەر / ناوەند *</label>
+                            <input type="text" name="name" required placeholder="ناوی ناوەند" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">جۆری خزمەتگوزاری *</label>
+                            <input type="text" name="service_type" required placeholder="وەک: چاککردنەوە، کارتۆن..." style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">کەسی بەرپرس</label>
+                            <input type="text" name="contact_person" placeholder="کاک فڵان" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">تەلەفۆن *</label>
+                            <input type="text" name="phone" required placeholder="0750 xxx xxxx" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">ناونیشان</label>
+                            <input type="text" name="address" placeholder="ناونیشان" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:0.8rem; color:var(--muted); display:block; margin-bottom:4px;">تێبینی</label>
+                        <input type="text" name="notes" placeholder="وردەکاری خزمەتگوزاری" style="width:100%; background:#0e0e14; border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:#fff;">
+                    </div>
+                    <button type="submit" class="btn-submit" style="width:auto; padding:8px 24px;">پاشەکەوتکردن</button>
+                </form>
+            </div>
+
+            <!-- خشتەی دابینکەرەکان -->
+            <div class="admin-table-box">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ناوەند / دابینکەر</th>
+                            <th>جۆری خزمەتگوزاری</th>
+                            <th>کەسی بەرپرس</th>
+                            <th>تەلەفۆن</th>
+                            <th>ناونیشان</th>
+                            <th>تێبینی</th>
+                            <th>دۆخ</th>
+                            <th>کردار</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in service_suppliers %}
+                        <tr>
+                            <td><strong style="color:#10b981;"><bdi>{{ s.name }}</bdi></strong></td>
+                            <td><span style="background:rgba(16,185,129,0.15); color:#10b981; padding:2px 8px; border-radius:6px; font-weight:700;"><bdi>{{ s.service_type }}</bdi></span></td>
+                            <td>{{ s.contact_person or '-' }}</td>
+                            <td><a href="tel:{{ s.phone }}" dir="ltr" style="display:inline-block; font-family:monospace; color:#ffffff; text-decoration:none;"><bdi>{{ s.phone }}</bdi></a></td>
+                            <td>{{ s.address or '-' }}</td>
+                            <td style="font-size:0.82rem; color:var(--muted); max-width:200px;">{{ s.notes or '-' }}</td>
+                            <td><span class="status-badge completed">{{ s.status }}</span></td>
+                            <td>
+                                <form method="post" action="{{ url_for('admin_service_supplier_delete', supplier_id=s.id) }}" onsubmit="return confirm('دڵنیایت لە سڕینەوە؟');" style="display:inline;">
+                                    <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--muted);">هیچ دابینکەرێک تۆمار نەکراوە.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<!-- ناوەڕۆکی تابی کاڵاکان -->
+    <div id="tab-products" class="admin-tab-content" style="display:none;">
+        <!-- فۆرمی زیادکردنی کاڵای نوێ -->
+        <details style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:24px;">
+            <summary style="font-weight:700; color:var(--amber); cursor:pointer;">➕ زیادکردنی کاڵای نوێ</summary>
+            <form method="post" action="{{ url_for('admin_product_add') }}" class="admin-form" style="margin-top:16px;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+                    <div class="form-group">
+                        <label>هاوپۆل</label>
+                        <select name="category_id" required>
+                            {% for c in categories %}
+                            <option value="{{ c.id }}">{{ c.name_ku }} ({{ c.slug }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>بڕاند</label>
+                        <select name="brand_id" required>
+                            {% for b in brands %}
+                            <option value="{{ b.id }}">{{ b.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ناوی کاڵا</label>
+                        <input type="text" name="name" required placeholder="بۆ نموونە: ASUS ROG Strix G16">
+                    </div>
+                    <div class="form-group">
+                        <label>نرخ بە دینار (IQD)</label>
+                        <input type="number" name="price_iqd" required placeholder="بۆ نموونە: 1250000" step="5000">
+                    </div>
+                    <div class="form-group">
+                        <label>دۆخ</label>
+                        <select name="condition">
+                            <option value="new">نوێ (New)</option>
+                            <option value="used">دەستی دوو (Used)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>داشکاندن (%)</label>
+                        <input type="number" name="discount_percent" min="0" max="90" value="0" placeholder="0 تا 90%">
+                    </div>
+                    <div class="form-group">
+                        <label>فایلی وێنە لە static/images/products/</label>
+                        <input type="text" name="image" placeholder="laptops/asus-rog-1.webp">
+                    </div>
+                    <div class="form-group">
+                        <label>تایبەتمەندییەکان (بە کۆما جیاکراوە)</label>
+                        <input type="text" name="specs_en" placeholder="RTX 4070, 16GB RAM, 1TB SSD">
+                    </div>
+                    <div class="form-group">
+                        <label>YouTube Video ID</label>
+                        <input type="text" name="video_id" placeholder="dQw4w9WgXcQ">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وەسفی کوردی</label>
+                    <textarea name="desc_ku" rows="3" placeholder="وەسفی کاڵاکە بنووسە..."></textarea>
+                </div>
+                <button type="submit" class="btn-submit" style="width:auto; padding:10px 28px;">زیادکردنی کاڵا</button>
+            </form>
+        </details>
+
+        <div class="admin-table-box">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>وێنە</th>
+                        <th>ناو</th>
+                        <th>هاوپۆل</th>
+                        <th>بڕاند</th>
+                        <th>نرخ</th>
+                        <th>داشکاندن</th>
+                        <th>دۆخ</th>
+                        <th>کردار</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in products %}
+                    <tr>
+                        <td dir="ltr" style="text-align:right;">#{{ p.id }}</td>
+                        <td>
+                            <img src="{{ url_for('static', filename='images/products/' ~ p.image) }}"
+                                 alt="" style="width:40px; height:40px; object-fit:contain; background:#fff; border-radius:4px;"
+                                 onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                        </td>
+                        <td><strong><bdi>{{ p.name }}</bdi></strong></td>
+                        <td><bdi>{{ p.cat_name }}</bdi></td>
+                        <td><bdi>{{ p.brand_name }}</bdi></td>
+                        <td dir="ltr" style="text-align:right;"><strong style="color:var(--amber);">{{ p.price | iqd }}</strong></td>
+                        <td dir="ltr" style="text-align:right;">
+                            <form method="post" action="/admin/product/discount/{{ p.id }}" style="display:flex; align-items:center; gap:6px; justify-content:flex-end;">
+                                <input type="number" name="discount_percent" min="0" max="90" value="{{ p.discount_percent or 0 }}" style="width:58px; padding:4px 6px; background:#070709; border:1px solid {% if p.discount_percent and p.discount_percent > 0 %}#f59e0b{% else %}var(--border){% endif %}; border-radius:6px; color:#fff; text-align:center; font-weight:700;">
+                                <span style="font-size:0.8rem; color:#f59e0b;">%</span>
+                                <button type="submit" title="پاشەکەوتکردنی داشکاندن" style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:0.8rem;">💾</button>
+                            </form>
+                            {% if p.discount_percent and p.discount_percent > 0 %}
+                            <div style="font-size:0.75rem; color:#10b981; margin-top:3px; text-align:right;">
+                                نرخی نوێ: {{ (p.price * (1 - p.discount_percent / 100.0)) | iqd }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge {% if p.condition == 'new' %}completed{% else %}pending{% endif %}">
+                                {{ p.condition }}
+                            </span>
+                        </td>
+                        <td>
+                            <form method="post" action="{{ url_for('admin_product_delete', product_id=p.id) }}" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم کاڵایە؟');" style="display:inline;">
+                                <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<!-- ناوەڕۆکی تابی بەرهەمە داشکێنراوەکان (Discounted Products Tab) -->
+    <div id="tab-discounts" class="admin-tab-content" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+            <div>
+                <h2 style="font-size:1.35rem; font-weight:800; color:#fbbf24; margin:0 0 4px 0; display:flex; align-items:center; gap:8px;">
+                    <span>🏷️</span> بەڕێوەبردنی بەرهەمە داشکێنراوەکان
+                </h2>
+                <p style="color:var(--muted); font-size:0.88rem; margin:0;">
+                    دیاریکردن، گۆڕین و چاودێریکردنی ڕاستەوخۆی داشکاندنی بەرهەمەکان (١٠٪ تا ٣٠٪ یان هەر ڕێژەیەک).
+                </p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <span style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#ef4444; padding:6px 14px; border-radius:10px; font-size:0.88rem; font-weight:700;">
+                    🏷️ کۆی داشکێنراوەکان: {{ discounted_products|length }} کاڵا
+                </span>
+            </div>
+        </div>
+
+        <!-- فۆرمی خێرای زیادکردنی داشکاندن بۆ هەر بەرهەمێک -->
+        <div class="admin-discount-box" style="background:#111119; border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:20px; margin-bottom:24px;">
+            <h3 style="font-size:1.1rem; color:var(--amber-soft); margin:0 0 12px 0; display:flex; align-items:center; gap:8px;">
+                <span>➕</span> داشکاندنی بەرهەمێکی نوێ یان نوێکردنەوەی داشکاندن
+            </h3>
+            <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end;">
+                <div style="flex:1; min-width:280px;">
+                    <label style="font-size:0.85rem; color:#d1d5db; display:block; margin-bottom:6px;">هەڵبژاردنی بەرهەم لەناو کۆگادا</label>
+                    <select id="tabDiscountProductSelect" style="width:100%; padding:10px 14px; background:#070709; border:1px solid var(--border); border-radius:8px; color:#fff; font-size:0.92rem;">
+                        <option value="">-- بەرهەمێک هەڵبژێرە --</option>
+                        {% for p in products %}
+                        <option value="{{ p.id }}">
+                            {{ p.name }} - ({{ p.price | iqd }}) {% if p.discount_percent and p.discount_percent > 0 %}[داشکاندنی ئێستا: {{ p.discount_percent }}%]{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="width:160px;">
+                    <label style="font-size:0.85rem; color:#d1d5db; display:block; margin-bottom:6px;">ڕێژەی داشکاندن (%)</label>
+                    <select id="tabDiscountPercentSelect" style="width:100%; padding:10px 14px; background:#070709; border:1px solid var(--border); border-radius:8px; color:#fff; font-size:0.92rem;">
+                        <option value="10">10% داشکاندن</option>
+                        <option value="15">15% داشکاندن</option>
+                        <option value="20" selected>20% داشکاندن</option>
+                        <option value="25">25% داشکاندن</option>
+                        <option value="30">30% داشکاندن</option>
+                        <option value="40">40% داشکاندن</option>
+                        <option value="50">50% داشکاندن</option>
+                        <option value="0">0% (لابردنی داشکاندن)</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" onclick="applyTabDiscount()" class="btn-submit" style="width:auto; padding:10px 26px; font-weight:700;">
+                        جێبەجێکردنی داشکاندن
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- خشتەی هەموو بەرهەمە داشکێنراوەکان -->
+        <div class="admin-table-box">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>وێنە</th>
+                        <th>ناوی بەرهەم</th>
+                        <th>هاوپۆل</th>
+                        <th>بڕاند</th>
+                        <th>نرخی بنەڕەتی</th>
+                        <th>ڕێژەی داشکاندن</th>
+                        <th>نرخی نوێی داشکێنراو</th>
+                        <th>کردار</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in discounted_products %}
+                    <tr>
+                        <td dir="ltr" style="text-align:right;">#{{ p.id }}</td>
+                        <td>
+                            <img src="{{ url_for('static', filename='images/products/' ~ p.image) }}"
+                                 alt="" style="width:42px; height:42px; object-fit:contain; background:#fff; border-radius:6px;"
+                                 onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                        </td>
+                        <td>
+                            <a href="{{ url_for('product', product_id=p.id) }}" target="_blank" style="color:#fff; text-decoration:none; font-weight:700;">
+                                <bdi>{{ p.name }}</bdi>
+                            </a>
+                        </td>
+                        <td><bdi>{{ p.cat_name }}</bdi></td>
+                        <td><bdi>{{ p.brand_name }}</bdi></td>
+                        <td dir="ltr" style="text-align:right;">
+                            <span class="old-price-strikethrough">{{ p.price | iqd }}</span>
+                        </td>
+                        <td dir="ltr" style="text-align:right;">
+                            <form method="post" action="/admin/product/discount/{{ p.id }}" style="display:flex; align-items:center; gap:6px; justify-content:flex-end;">
+                                <input type="hidden" name="from_tab" value="discounts">
+                                <input type="number" name="discount_percent" min="0" max="90" value="{{ p.discount_percent }}" style="width:58px; padding:4px 6px; background:#070709; border:1px solid #ef4444; border-radius:6px; color:#fff; text-align:center; font-weight:800;">
+                                <span style="font-size:0.85rem; color:#ef4444; font-weight:700;">%</span>
+                                <button type="submit" title="نوێکردنەوە" style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:0.82rem;">💾</button>
+                            </form>
+                        </td>
+                        <td dir="ltr" style="text-align:right;">
+                            <strong style="color:#f59e0b; font-size:1.05rem;">{{ p.discount_price | iqd }}</strong>
+                        </td>
+                        <td>
+                            <!-- لابردنی داشکاندن بە یەک کلیک -->
+                            <form method="post" action="/admin/product/discount/{{ p.id }}" style="display:inline;">
+                                <input type="hidden" name="from_tab" value="discounts">
+                                <input type="hidden" name="discount_percent" value="0">
+                                <button type="submit" class="remove-btn" title="لابردنی داشکاندن (گەڕاندنەوە بۆ نرخی ئاسایی)" style="color:#ef4444; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); padding:4px 8px; border-radius:6px; cursor:pointer; font-size:0.82rem;">❌ لابردن</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align:center; padding:32px; color:var(--muted);">
+                            هیچ بەرهەمێک لە ئێستادا داشکاندنی لەسەر دانەنراوە. لە سەرەوە دەتوانیت بەرهەمێک هەڵبژێریت و داشکاندنی بۆ دابنێیت.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<div id="tab-categories" class="admin-tab-content" style="display:none;">
+        <details style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:24px;">
+            <summary style="font-weight:700; color:var(--amber); cursor:pointer;">➕ زیادکردنی هاوپۆلی نوێ</summary>
+            <form method="post" action="{{ url_for('admin_category_add') }}" class="admin-form" style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
+                <div class="form-group">
+                    <label>Slug (بۆ نموونە: consoles)</label>
+                    <input type="text" name="slug" required placeholder="consoles">
+                </div>
+                <div class="form-group">
+                    <label>ناوی کوردی</label>
+                    <input type="text" name="name_ku" required placeholder="کۆنسوڵ">
+                </div>
+                <div class="form-group">
+                    <label>ناوی عەرەبی</label>
+                    <input type="text" name="name_ar" placeholder="أجهزة كونسول">
+                </div>
+                <div class="form-group">
+                    <label>ناوی ئینگلیزی</label>
+                    <input type="text" name="name_en" placeholder="Consoles">
+                </div>
+                <div style="grid-column:1/-1;">
+                    <button type="submit" class="btn-submit" style="width:auto; padding:10px 24px;">زیادکردن</button>
+                </div>
+            </form>
+        </details>
+
+        <div class="admin-table-box">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ئایکۆن</th>
+                        <th>Slug</th>
+                        <th>ناوی کوردی</th>
+                        <th>عەرەبی</th>
+                        <th>ئینگلیزی</th>
+                        <th>ژمارەی کاڵاکان</th>
+                        <th>کردار</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in categories %}
+                    <tr>
+                        <td dir="ltr" style="text-align:right;">#{{ c.id }}</td>
+                        <td>
+                            <img src="{{ url_for('static', filename='images/categories/' ~ c.slug ~ '.webp') }}"
+                                 alt="" style="width:32px; height:32px; object-fit:contain; border-radius:6px;"
+                                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/categories/' ~ c.slug ~ '.png') }}'">
+                        </td>
+                        <td><code dir="ltr">{{ c.slug }}</code></td>
+                        <td><strong><bdi>{{ c.name_ku }}</bdi></strong></td>
+                        <td><bdi>{{ c.name_ar }}</bdi></td>
+                        <td><bdi>{{ c.name_en }}</bdi></td>
+                        <td><span dir="ltr" style="display:inline-block; font-weight:700; color:var(--amber); background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(245,158,11,0.25);">{{ c.prod_count }}</span> <span style="font-size:0.8rem; color:var(--muted);">کاڵا</span></td>
+                        <td>
+                            <form method="post" action="{{ url_for('admin_category_delete', cat_id=c.id) }}" onsubmit="return confirm('ئایا دڵنیایت؟ هەموو کاڵاکانی ئەم بەشە ڕەنگە کاریگەرییان لێبکەوێت');" style="display:inline;">
+                                <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<div id="tab-brands" class="admin-tab-content" style="display:none;">
+        <div style="display:flex; gap:14px; margin-bottom:24px; flex-wrap:wrap;">
+            <form method="post" action="{{ url_for('admin_brand_add') }}" style="display:flex; gap:10px; flex:1; max-width:400px;">
+                <input type="text" name="name" required placeholder="ناوی بڕاندی نوێ..." style="flex:1; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; color:#fff;">
+                <button type="submit" class="btn-submit" style="width:auto; padding:10px 20px; margin:0;">زیادکردن</button>
+            </form>
+        </div>
+
+        <div class="admin-table-box">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ناوی بڕاند</th>
+                        <th>ژمارەی کاڵاکان</th>
+                        <th>کردار</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in brands %}
+                    <tr>
+                        <td dir="ltr" style="text-align:right;">#{{ b.id }}</td>
+                        <td><strong><bdi>{{ b.name }}</bdi></strong></td>
+                        <td><span dir="ltr" style="display:inline-block; font-weight:700; color:var(--amber); background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(245,158,11,0.25);">{{ b.prod_count }}</span> <span style="font-size:0.8rem; color:var(--muted);">کاڵا</span></td>
+                        <td>
+                            <form method="post" action="{{ url_for('admin_brand_delete', brand_id=b.id) }}" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم بڕاندە؟');" style="display:inline;">
+                                <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<div id="tab-users" class="admin-tab-content" style="display:none;">
+        <div style="margin-bottom:24px;">
+            <form method="post" action="{{ url_for('admin_user_add') }}" style="display:flex; gap:10px; flex-wrap:wrap; max-width:540px;">
+                <input type="text" name="username" required placeholder="ناوی بەکارهێنەر" style="flex:1; min-width:160px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; color:#fff;">
+                <input type="password" name="password" required placeholder="وشەی نهێنی" style="flex:1; min-width:160px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; color:#fff;">
+                <button type="submit" class="btn-submit" style="width:auto; padding:10px 20px; margin:0;">زیادکردنی ئەدمین</button>
+            </form>
+        </div>
+
+        <div class="admin-table-box">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ناوی بەکارهێنەر</th>
+                        <th>ڕۆڵ</th>
+                        <th>بەرواری دروستبوون</th>
+                        <th>کردار</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td dir="ltr" style="text-align:right;">#{{ u.id }}</td>
+                        <td><strong><bdi>{{ u.username }}</bdi></strong></td>
+                        <td><span class="status-badge completed">{{ u.role }}</span></td>
+                        <td dir="ltr" style="text-align:right;"><span style="font-family:monospace; font-size:0.82rem;">{{ u.created_at }}</span></td>
+                        <td>
+                            {% if u.id != session.get('admin_id') %}
+                            <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم بەڕێوبەرە؟');" style="display:inline;">
+                                <button type="submit" class="remove-btn" title="سڕینەوە">🗑️</button>
+                            </form>
+                            {% else %}
+                            <span style="color:var(--amber); font-size:0.8rem; background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:10px; border:1px solid rgba(245,158,11,0.25);">ئێستا تۆیت</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    function switchAdminTab(tabName, btn) {
+        document.querySelectorAll('.admin-tab-content').forEach(function(el) {
+            el.style.display = 'none';
+        });
+        document.querySelectorAll('.admin-tab-btn').forEach(function(b) {
+            b.classList.remove('active');
+        });
+
+        var target = document.getElementById('tab-' + tabName);
+        if (target) {
+            target.style.display = 'block';
+        }
+
+        if (btn) {
+            btn.classList.add('active');
+        } else {
+            var foundBtn = document.querySelector('.admin-tab-btn[data-tab="' + tabName + '"]');
+            if (foundBtn) foundBtn.classList.add('active');
+        }
+
+        try {
+            history.replaceState(null, null, '#' + tabName);
+        } catch(e) {}
+    }
+    window.switchAdminTab = switchAdminTab;
+
+    function switchReportPeriod(period, btn) {
+        document.querySelectorAll('.report-pill').forEach(function(b) { b.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        var cards = document.querySelectorAll('.report-period-card');
+        cards.forEach(function(card) {
+            if (period === 'all' || card.getAttribute('data-period') === period) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function toggleCompanyForm(formId) {
+        var el = document.getElementById(formId);
+        if (el) {
+            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+        }
+    }
+
+    function applyTabDiscount() {
+        var prodSelect = document.getElementById('tabDiscountProductSelect');
+        var discSelect = document.getElementById('tabDiscountPercentSelect');
+        var prodId = prodSelect ? prodSelect.value : '';
+        var discount = discSelect ? discSelect.value : '0';
+        if (!prodId) {
+            alert('تکایە سەرەتا بەرهەمێک هەڵبژێرە');
+            return;
+        }
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/product/discount/' + prodId;
+        var input1 = document.createElement('input');
+        input1.type = 'hidden';
+        input1.name = 'discount_percent';
+        input1.value = discount;
+        form.appendChild(input1);
+        var input2 = document.createElement('input');
+        input2.type = 'hidden';
+        input2.name = 'from_tab';
+        input2.value = 'discounts';
+        form.appendChild(input2);
+        document.body.appendChild(form);
+        form.submit();
+    }
+    window.applyTabDiscount = applyTabDiscount;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.admin-tab-btn').forEach(function(b) {
+            b.addEventListener('click', function(e) {
+                e.preventDefault();
+                var tab = this.getAttribute('data-tab');
+                if (tab) switchAdminTab(tab, this);
+            });
+        });
+
+        var hash = window.location.hash.replace('#', '');
+        if (hash && document.getElementById('tab-' + hash)) {
+            var btn = document.querySelector('.admin-tab-btn[data-tab="' + hash + '"]');
+            switchAdminTab(hash, btn);
+        } else {
+            var defaultBtn = document.querySelector('.admin-tab-btn[data-tab="reports"]');
+            switchAdminTab('reports', defaultBtn);
+        }
+    });
+    </script>
+
+</section>
+{% endblock %}

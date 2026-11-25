@@ -1,0 +1,16 @@
+CATEGORIES = [
+    {"slug": "laptops",     "name_ku": "لاپتۆپ",            "name_ar": "لابتوب",          "name_en": "Laptops",        "has_used": 0},
+    {"slug": "monitors",    "name_ku": "مۆنیتەر",           "name_ar": "شاشات",           "name_en": "Monitors",       "has_used": 0},
+    {"slug": "mouse",       "name_ku": "ماوس",              "name_ar": "ماوس",            "name_en": "Mouse",          "has_used": 0},
+    {"slug": "keyboards",   "name_ku": "کیبۆرد",            "name_ar": "لوحات مفاتيح",    "name_en": "Keyboards",      "has_used": 0},
+    {"slug": "mousepads",   "name_ku": "ماوس پاد",          "name_ar": "ماوس باد",        "name_en": "Mousepads",      "has_used": 0},
+    {"slug": "chairs",      "name_ku": "کورسیی گەیمینگ",    "name_ar": "كراسي الألعاب",   "name_en": "Gaming Chairs",  "has_used": 0},
+    {"slug": "desks",       "name_ku": "مێزی گەیمینگ",      "name_ar": "طاولات الألعاب",  "name_en": "Gaming Desks",   "has_used": 0},
+    {"slug": "headsets",    "name_ku": "هێدسێت",            "name_ar": "سماعات",          "name_en": "Headsets",       "has_used": 0},
+    {"slug": "controllers", "name_ku": "دەسک (کۆنتڕۆلەر)",  "name_ar": "يد التحكم",       "name_en": "Controllers",    "has_used": 0},
+    {"slug": "microphones", "name_ku": "مایکڕۆفۆن",         "name_ar": "ميكروفونات",      "name_en": "Microphones",    "has_used": 0},
+    {"slug": "webcams",     "name_ku": "وێبکام",            "name_ar": "كاميرات الويب",   "name_en": "Webcams",        "has_used": 0},
+    {"slug": "led-lights",  "name_ku": "لیدی ڕەنگاوڕەنگ",   "name_ar": "إضاءة LED",       "name_en": "LED Lights",     "has_used": 0},
+    {"slug": "figures",     "name_ku": "فیگەر",             "name_ar": "مجسمات",          "name_en": "Figures",        "has_used": 0},
+    {"slug": "handhelds",   "name_ku": "هاندهێڵد",          "name_ar": "أجهزة محمولة",    "name_en": "Handhelds",      "has_used": 0},
+]

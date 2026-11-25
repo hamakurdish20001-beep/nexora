@@ -1,0 +1,17 @@
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Scratch & Temporary
+scratch/
+*.log
+
+# OS generated
+.DS_Store
+Thumbs.db

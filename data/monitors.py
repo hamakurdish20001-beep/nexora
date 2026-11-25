@@ -1,0 +1,68 @@
+MONITORS = [
+    # ===== نوێ =====
+    {
+        "brand": "Samsung", "name": "Samsung Odyssey G5 27", "price": 249, "condition": "new",
+        "image": "monitors/monitor-01-1.webp",
+        "specs_en": "27-inch QHD 2560x1440, 144Hz, 1ms, VA curved panel, AMD FreeSync Premium",
+        "desc_ku": "مۆنیتەرێکی گەیمینگی خوارە (Curved) بە ڕوونی QHD و 144Hz، یاری زۆر نەرم دەکات.",
+        "desc_ar": "شاشة ألعاب منحنية بدقة QHD و144Hz، تمنحك لعبًا سلسًا جدًا.",
+        "desc_en": "A curved gaming monitor with QHD resolution and 144Hz for very smooth gameplay.",
+    },
+    {
+        "brand": "LG", "name": "LG UltraGear 27GP850-B", "price": 349, "condition": "new",
+        "image": "monitors/monitor-02-1.webp",
+        "specs_en": "27-inch QHD 2560x1440, Nano IPS, 165Hz (overclock), 1ms GtG, G-Sync compatible",
+        "desc_ku": "مۆنیتەرێکی Nano IPS بە ڕەنگی زۆر جوان و خێرایی 165Hz.",
+        "desc_ar": "شاشة Nano IPS بألوان رائعة وسرعة 165Hz.",
+        "desc_en": "A Nano IPS monitor with excellent colors and a 165Hz refresh rate.",
+    },
+    {
+        "brand": "ASUS", "name": "ASUS TUF Gaming VG27AQ", "price": 299, "condition": "new",
+        "image": "monitors/monitor-03-1.webp",
+        "specs_en": "27-inch QHD 2560x1440, IPS, 165Hz, 1ms MPRT, G-Sync compatible, ELMB Sync",
+        "desc_ku": "مۆنیتەرێکی IPS ی ئەستوور و ناسراو بۆ گەیمەرەکان، بە گۆشەی بینینی فراوان.",
+        "desc_ar": "شاشة IPS متينة ومعروفة للاعبين مع زاوية رؤية واسعة.",
+        "desc_en": "A sturdy, popular IPS gaming monitor with wide viewing angles.",
+    },
+    {
+        "brand": "MSI", "name": "MSI G27C4", "price": 169, "condition": "new",
+        "image": "monitors/monitor-04-1.webp",
+        "specs_en": "27-inch Full HD 1920x1080, VA curved, 170Hz, 1ms, AMD FreeSync Premium",
+        "desc_ku": "مۆنیتەرێکی هەرزانی خوارە بە 170Hz، باشە بۆ دەست پێکردن.",
+        "desc_ar": "شاشة منحنية اقتصادية بتردد 170Hz، مناسبة للمبتدئين.",
+        "desc_en": "An affordable curved monitor with 170Hz, a good starter choice.",
+    },
+
+        {
+        "brand": "Dell", "name": "Dell P2419H", "price": 139, "condition": "new",
+        "image": "monitors/monitor-05-1.webp",
+        "specs_en": "24-inch Full HD 1920x1080, IPS, 60Hz, HDMI and DisplayPort, height-adjustable stand",
+        "desc_ku": "مۆنیتەرێکی ئۆفیسی باش بە IPS و ستاندێکی ڕێکخراو.",
+        "desc_ar": "شاشة مكتبية ممتازة بتقنية IPS وحامل قابل للتعديل.",
+        "desc_en": "A solid office monitor with an IPS panel and an adjustable stand.",
+    },
+    {
+        "brand": "Dell", "name": "Dell UltraSharp U2415", "price": 199, "condition": "new",
+        "image": "monitors/monitor-06-1.webp",
+        "specs_en": "24.1-inch 1920x1200 (16:10), IPS, 60Hz, HDMI and DisplayPort, USB hub",
+        "desc_ku": "مۆنیتەرێکی پیشەیی بە ڕەنگی ورد، گونجاوە بۆ دیزاین و کار.",
+        "desc_ar": "شاشة احترافية بألوان دقيقة، مناسبة للتصميم والعمل.",
+        "desc_en": "A professional monitor with accurate colors, great for design and work.",
+    },
+    {
+        "brand": "HP", "name": "HP EliteDisplay E243", "price": 159, "condition": "new",
+        "image": "monitors/monitor-07-1.webp",
+        "specs_en": "23.8-inch Full HD 1920x1080, IPS, 60Hz, HDMI, DisplayPort and VGA, adjustable stand",
+        "desc_ku": "مۆنیتەرێکی کارا بۆ کاری ڕۆژانە و خوێندن.",
+        "desc_ar": "شاشة عملية للعمل اليومي والدراسة.",
+        "desc_en": "A practical monitor for daily work and study.",
+    },
+    {
+        "brand": "Acer", "name": "Acer Predator XB271HU", "price": 299, "condition": "new",
+        "image": "monitors/monitor-08-1.webp",
+        "specs_en": "27-inch QHD 2560x1440, IPS, up to 144Hz (165Hz overclock), G-Sync, DisplayPort",
+        "desc_ku": "مۆنیتەرێکی گەیمینگ بە QHD و G-Sync بۆ یاریزانە جددییەکان.",
+        "desc_ar": "شاشة ألعاب بدقة QHD وتقنية G-Sync للاعبين الجادين.",
+        "desc_en": "A gaming monitor with QHD and G-Sync for serious players.",
+    },
+]

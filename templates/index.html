@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- شریتی جووڵاوی نوێترین بەرهەمەکان (Continuous Marquee Ticker) -->
+{% if recent_products %}
+<section class="marquee-section">
+    <div class="marquee-header">
+        <h3 data-i18n="sec.marquee">🔥 نوێترین بەرهەمەکان</h3>
+    </div>
+    <div class="marquee-wrapper">
+        <div class="marquee-track">
+            <!-- جارێک نیشاندانی کاڵاکان -->
+            {% for p in recent_products %}
+            <div class="marquee-card" onclick="window.location.href='{{ url_for('product', product_id=p['id']) }}'">
+                <div class="marquee-card-img">
+                    <img src="{{ url_for('static', filename='images/products/' ~ p['image']) }}" alt="{{ p['name'] }}" loading="lazy" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                </div>
+                <div class="marquee-card-title">{{ p['name'] }}</div>
+                <div class="marquee-card-price">{{ p['price'] | iqd }}</div>
+            </div>
+            {% endfor %}
+
+            <!-- دووبارەکردنەوە بۆ جووڵەی نەبڕاوە (Infinite Loop) -->
+            {% for p in recent_products %}
+            <div class="marquee-card" onclick="window.location.href='{{ url_for('product', product_id=p['id']) }}'">
+                <div class="marquee-card-img">
+                    <img src="{{ url_for('static', filename='images/products/' ~ p['image']) }}" alt="{{ p['name'] }}" loading="lazy" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                </div>
+                <div class="marquee-card-title">{{ p['name'] }}</div>
+                <div class="marquee-card-price">{{ p['price'] | iqd }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- شریتی جووڵاوی بەرهەمە داشکێنراوەکان (Continuous Discounted Marquee Ticker) -->
+{% if discounted_products %}
+<section class="marquee-section marquee-discounted-section">
+    <div class="marquee-header">
+        <h3 class="marquee-discount-title" style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+            <span style="font-size:1.25rem;">🏷️</span>
+            <span data-i18n="sec.discounted">بەرهەمە داشکێنراوەکان</span>
+        </h3>
+    </div>
+    <div class="marquee-wrapper">
+        <div class="marquee-track">
+            <!-- جارێک نیشاندانی کاڵاکان -->
+            {% for p in discounted_products %}
+            <div class="marquee-card marquee-discount-card" onclick="window.location.href='{{ url_for('product', product_id=p['id']) }}'">
+                <span class="marquee-discount-badge">-{{ p['discount_percent'] }}%</span>
+                <div class="marquee-card-img">
+                    <img src="{{ url_for('static', filename='images/products/' ~ p['image']) }}" alt="{{ p['name'] }}" loading="lazy" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                </div>
+                <div class="marquee-card-title">{{ p['name'] }}</div>
+                <div class="marquee-card-price-row">
+                    <span class="marquee-old-price">{{ p['price'] | iqd }}</span>
+                    <span class="marquee-new-price">{{ p['discount_price'] | iqd }}</span>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- دووبارەکردنەوە بۆ جووڵەی نەبڕاوە (Infinite Loop) -->
+            {% for p in discounted_products %}
+            <div class="marquee-card marquee-discount-card" onclick="window.location.href='{{ url_for('product', product_id=p['id']) }}'">
+                <span class="marquee-discount-badge">-{{ p['discount_percent'] }}%</span>
+                <div class="marquee-card-img">
+                    <img src="{{ url_for('static', filename='images/products/' ~ p['image']) }}" alt="{{ p['name'] }}" loading="lazy" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+                </div>
+                <div class="marquee-card-title">{{ p['name'] }}</div>
+                <div class="marquee-card-price-row">
+                    <span class="marquee-old-price">{{ p['price'] | iqd }}</span>
+                    <span class="marquee-new-price">{{ p['discount_price'] | iqd }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- بەشەکان بە وێنەی واقیعی و ستایلی مۆدێرن (Categories Grid) -->
+<section class="container section" id="categories">
+    <div class="section-header">
+        <h2 class="section-title">
+            <span data-i18n="sec.categories">بەشەکان</span>
+        </h2>
+        <a href="{{ url_for('all_products') }}" class="section-link" data-i18n="sec.view_all">بینینی هەمووی ←</a>
+    </div>
+
+    <div class="cat-grid">
+        {% for c in categories %}
+        <a href="{{ url_for('category', slug=c['slug']) }}" class="cat-card">
+            <div class="cat-icon-wrap">
+                <img src="{{ url_for('static', filename='images/categories/' ~ c['slug'] ~ '.webp') }}"
+                     alt="{{ c['name_ku'] }}" loading="lazy"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/categories/' ~ c['slug'] ~ '.png') }}'">
+            </div>
+            <span class="cat-name" data-ku="{{ c['name_ku'] }}" data-ar="{{ c['name_ar'] }}" data-en="{{ c['name_en'] }}">{{ c['name_ku'] }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- بەشە ئاسۆییەکانی هەر هاوپۆلێک (Horizontal Category Rows until Handhelds) -->
+<section class="container section">
+    {% for sec in category_sections %}
+    <div class="cat-row-section">
+        <div class="cat-row-header">
+            <div class="cat-row-title-wrap">
+                <img src="{{ url_for('static', filename='images/categories/' ~ sec.category['slug'] ~ '.webp') }}"
+                     alt="" class="cat-row-icon"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/categories/' ~ sec.category['slug'] ~ '.png') }}'">
+                <h3 class="section-title" style="font-size:1.35rem; margin-bottom:0;">
+                    <span data-ku="{{ sec.category['name_ku'] }}" data-ar="{{ sec.category['name_ar'] }}" data-en="{{ sec.category['name_en'] }}">{{ sec.category['name_ku'] }}</span>
+                </h3>
+            </div>
+            <a href="{{ url_for('category', slug=sec.category['slug']) }}" class="section-link" data-i18n="sec.view_all">بینینی هەمووی ←</a>
+        </div>
+
+        <div class="cat-row-wrapper">
+            <div class="cat-row-scroll">
+                {% for p in sec.products %}
+                <div class="product-card cat-row-card">
+                    <a class="card-link" href="{{ url_for('product', product_id=p['id']) }}" aria-label="{{ p['name'] }}"></a>
+                    <div class="product-img">
+                        <img src="{{ url_for('static', filename='images/products/' ~ p['image']) }}"
+                             alt="{{ p['name'] }}" loading="lazy"
+                             onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+
+                        {% if p['discount_percent'] and p['discount_percent'] > 0 %}
+                        <span class="discount-badge-pill">-{{ p['discount_percent'] }}%</span>
+                        {% endif %}
+
+                        <!-- دوگمەی دڵخواز -->
+                        <button type="button" class="wishlist-btn" data-id="{{ p['id'] }}"
+                                onclick="event.preventDefault();event.stopPropagation();toggleWishlist({{ p['id'] }}, this)"
+                                aria-label="Wishlist">
+                            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        </button>
+                    </div>
+                    <div class="product-info">
+                        <span class="brand">{{ p['brand_name'] }}</span>
+                        <h3>{{ p['name'] }}</h3>
+                        <div class="product-price-row">
+                            {% if p['discount_percent'] and p['discount_percent'] > 0 %}
+                            <div class="price-discount-box">
+                                <span class="old-price-strikethrough">{{ p['price'] | iqd }}</span>
+                                <span class="price new-discount-price">{{ (p['price'] * (1 - p['discount_percent'] / 100.0)) | iqd }}</span>
+                            </div>
+                            {% else %}
+                            <div class="price">{{ p['price'] | iqd }}</div>
+                            {% endif %}
+                            <button type="button" class="add-cart-btn"
+                                    onclick="event.preventDefault();event.stopPropagation();addToCart({{ p['id'] }})">
+                                <svg class="cart-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                                    <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                                <span data-i18n="product.add_short">زیادکردن</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- کارتی نایابی بینینی زیاتر بە ئەنیمەیشن لە کۆتایی ڕیزەکە -->
+                <div class="product-card cat-row-card cat-row-more-card" onclick="window.location.href='{{ url_for('category', slug=sec.category['slug']) }}'">
+                    <a class="card-link" href="{{ url_for('category', slug=sec.category['slug']) }}" aria-label="بینینی زیاتر"></a>
+                    <div class="more-card-inner">
+                        <div class="more-card-icon-pulse">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+                        <span class="more-card-title" data-i18n="sec.view_more">بینینی زیاتر</span>
+                        <span class="more-card-sub" data-ku="{{ sec.category['name_ku'] }}" data-ar="{{ sec.category['name_ar'] }}" data-en="{{ sec.category['name_en'] }}">{{ sec.category['name_ku'] }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+{% endblock %}

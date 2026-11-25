@@ -1,0 +1,79 @@
+﻿<header class="site-header">
+    <div class="container header-inner">
+
+        <!-- لای ڕاست: لۆگۆی بازنەیی لە تەنیشت سەرەتا و هەموو بەشەکان -->
+        <div class="header-start">
+            <a href="/" class="header-circle-logo" title="NEXORA">
+                <img src="{{ url_for('static', filename='images/logo/nexora_controller_circle.png') }}" alt="NEXORA">
+            </a>
+            <nav class="nav-tabs" aria-label="Main Navigation">
+                <a href="/" class="nav-tab-link {% if request.path == '/' %}active{% endif %}" data-i18n="nav.home">سەرەتا</a>
+                <a href="{{ url_for('all_products') }}" class="nav-tab-link {% if request.path.startswith('/products') %}active{% endif %}" data-i18n="nav.all_products">هەموو بەشەکان</a>
+            </nav>
+        </div>
+
+        <!-- ناوەڕاست: سێرچ باری ڕاستەوخۆ بە شێوازی کپسول و لیستی ئەنجامی خێرا -->
+        <div class="header-search-wrap">
+            <form action="{{ url_for('all_products') }}" method="GET" class="header-search-form" id="headerSearchForm" autocomplete="off">
+                <input type="text" name="q" id="headerSearchInput" class="header-search-input"
+                       placeholder="گەڕان بۆ بەرهەم..." data-i18n-ph="search.placeholder"
+                       value="{{ request.args.get('q', '') }}" autocomplete="off">
+                <button type="submit" class="header-search-submit" aria-label="Search" title="گەڕان">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </form>
+            <div id="headerSearchResults" class="header-search-results"></div>
+        </div>
+
+        <!-- لای چەپ: کردارەکان (دڵخواز، سەبەتە، زمان، مۆد، مێنوو) -->
+        <div class="header-actions">
+
+            <!-- لیستی دڵخواز -->
+            <a href="{{ url_for('wishlist') }}" class="action-btn" aria-label="Wishlist" title="لیستی دڵخواز">
+                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <span id="wishlistCount" class="badge-count">0</span>
+            </a>
+
+            <!-- سەبەتەی کڕین -->
+            <a href="{{ url_for('cart') }}" class="action-btn cart-link" aria-label="Cart" title="سەبەتەی کڕین">
+                <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span id="cartCount" class="badge-count">0</span>
+            </a>
+
+            <!-- گۆڕینی زمان (Dropdown مێنوو لەسەر هۆڤەر و کلیک) -->
+            <div class="lang-dropdown-wrap" id="langDropdownWrap">
+                <button type="button" class="action-btn lang-btn" id="langBtn" aria-label="Language" title="زمان" onclick="toggleLangMenu(event)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                </button>
+                <div class="lang-dropdown-menu" id="langDropdownMenu">
+                    <button type="button" class="lang-menu-item" onclick="chooseLang('ku', event)">
+                        <img src="{{ url_for('static', filename='images/flags/kurdistan.svg') }}" alt="کوردستان" class="lang-item-flag-img">
+                        <span class="lang-item-name">کوردی</span>
+                    </button>
+                    <button type="button" class="lang-menu-item" onclick="chooseLang('ar', event)">
+                        <img src="{{ url_for('static', filename='images/flags/iraq.svg') }}" alt="العراق" class="lang-item-flag-img">
+                        <span class="lang-item-name">العربية</span>
+                    </button>
+                    <button type="button" class="lang-menu-item" onclick="chooseLang('en', event)">
+                        <img src="{{ url_for('static', filename='images/flags/usa.svg') }}" alt="English" class="lang-item-flag-img">
+                        <span class="lang-item-name">English</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- مۆدی تاریک / ڕووناک -->
+            <button type="button" id="themeBtn" class="action-btn theme-btn" onclick="toggleTheme()" aria-label="Theme" title="گۆڕینی ڕەنگ">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+
+            <!-- دوگمەی مێنووی سایدبار -->
+            <button type="button" id="menuBtn" class="menu-btn" onclick="openSidebar(event)" aria-label="Menu" title="مێنوو">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </div>
+
+    </div>
+</header>

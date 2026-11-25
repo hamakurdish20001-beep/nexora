@@ -1,0 +1,5 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#14141c"/>
+  <polygon points="200,90 250,120 250,180 200,210 150,180 150,120" fill="none" stroke="#8b5cf6" stroke-width="4"/>
+  <text x="200" y="262" text-anchor="middle" font-family="Arial" font-size="18" fill="#6b7280">NEXORA</text>
+</svg>

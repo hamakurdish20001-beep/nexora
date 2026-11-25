@@ -1,0 +1,68 @@
+LAPTOPS = [
+    # ===== نوێ =====
+    {
+        "brand": "ASUS", "name": "ASUS ROG Strix G16", "price": 1499, "condition": "new",
+        "image": "laptops/laptop-01-1.webp",
+        "specs_en": "Intel Core i7-13650HX, 16GB DDR5, 512GB NVMe SSD, NVIDIA RTX 4060, 16-inch 165Hz display",
+        "desc_ku": "لاپتۆپێکی گەیمینگی بەهێز بە کارتی RTX 4060 و شاشەی 165Hz، گونجاوە بۆ یارییە قورسەکان.",
+        "desc_ar": "لابتوب ألعاب قوي بكرت RTX 4060 وشاشة 165Hz، مناسب للألعاب الثقيلة.",
+        "desc_en": "A powerful gaming laptop with an RTX 4060 and a 165Hz display, ideal for demanding games.",
+    },
+    {
+        "brand": "Lenovo", "name": "Lenovo Legion 5", "price": 1299, "condition": "new",
+        "image": "laptops/laptop-02-1.webp",
+        "specs_en": "AMD Ryzen 7, 16GB RAM, 512GB SSD, NVIDIA RTX 4060, 15.6-inch 165Hz display",
+        "desc_ku": "هاوسەنگییەکی باش لە نێوان نرخ و کارایی، بە سیستەمی فێنککردنەوەی باش.",
+        "desc_ar": "توازن ممتاز بين السعر والأداء مع نظام تبريد فعّال.",
+        "desc_en": "A great balance of price and performance with an effective cooling system.",
+    },
+    {
+        "brand": "MSI", "name": "MSI Katana 15", "price": 1199, "condition": "new",
+        "image": "laptops/laptop-03-1.webp",
+        "specs_en": "Intel Core i7, 16GB RAM, 512GB SSD, NVIDIA RTX 4060, 15.6-inch 144Hz display",
+        "desc_ku": "لاپتۆپێکی گەیمینگی ئەستوور بە شاشەی 144Hz و پەڕەی کیبۆردی ڕووناک.",
+        "desc_ar": "لابتوب ألعاب متين بشاشة 144Hz ولوحة مفاتيح مضيئة.",
+        "desc_en": "A sturdy gaming laptop with a 144Hz display and a backlit keyboard.",
+    },
+    {
+        "brand": "Apple", "name": "Apple MacBook Air M2", "price": 1099, "condition": "new",
+        "image": "laptops/laptop-04-1.webp",
+        "specs_en": "Apple M2 chip, 8GB unified memory, 256GB SSD, 13.6-inch Liquid Retina display, fanless design",
+        "desc_ku": "لاپتۆپێکی سووک و بێدەنگ بە پڕۆسێسەری M2، باشە بۆ خوێندن و کار.",
+        "desc_ar": "لابتوب خفيف وصامت بمعالج M2، مناسب للدراسة والعمل.",
+        "desc_en": "A light and silent laptop with the M2 chip, great for study and work.",
+    },
+
+       {
+        "brand": "Acer", "name": "Acer Nitro V 15", "price": 899, "condition": "new",
+        "image": "laptops/laptop-05-1.webp",
+        "specs_en": "Intel Core i5 H-series, 16GB RAM, 512GB SSD, NVIDIA RTX 4050, 15.6-inch Full HD 144Hz display",
+        "desc_ku": "لاپتۆپێکی گەیمینگی بە نرخێکی گونجاو، بە کارتی RTX 4050 و شاشەی 144Hz.",
+        "desc_ar": "لابتوب ألعاب بسعر مناسب بكرت RTX 4050 وشاشة 144Hz.",
+        "desc_en": "An affordable gaming laptop with an RTX 4050 and a 144Hz display.",
+    },
+    {
+        "brand": "HP", "name": "HP Victus 15", "price": 849, "condition": "new",
+        "image": "laptops/laptop-06-1.webp",
+        "specs_en": "Intel Core i5, 16GB RAM, 512GB SSD, NVIDIA RTX 4050, 15.6-inch Full HD 144Hz display",
+        "desc_ku": "لاپتۆپێکی گەیمینگی ڕێکوپێک بۆ خوێندکار و یاریزانی ئاسایی.",
+        "desc_ar": "لابتوب ألعاب متوازن مناسب للطلاب واللاعبين العاديين.",
+        "desc_en": "A well-balanced gaming laptop suited to students and casual gamers.",
+    },
+    {
+        "brand": "Lenovo", "name": "Lenovo LOQ 15", "price": 949, "condition": "new",
+        "image": "laptops/laptop-07-1.webp",
+        "specs_en": "Intel Core i5 or i7 H-series, 16GB RAM, 512GB SSD, NVIDIA RTX 4050, 15.6-inch Full HD 144Hz display",
+        "desc_ku": "لاپتۆپێکی لێنۆڤۆ بە فێنککردنەوەی باش و کارایی بەهێز بۆ یاری.",
+        "desc_ar": "لابتوب Lenovo بتبريد جيد وأداء قوي للألعاب.",
+        "desc_en": "A Lenovo laptop with good cooling and strong gaming performance.",
+    },
+    {
+        "brand": "Apple", "name": "Apple MacBook Pro 14 M3", "price": 1599, "condition": "new",
+        "image": "laptops/laptop-08-1.webp",
+        "specs_en": "Apple M3 chip, 8GB unified memory, 512GB SSD, 14.2-inch Liquid Retina XDR display, long battery life",
+        "desc_ku": "مەکبووکی پرۆی ١٤ ئینچ بە پڕۆسێسەری M3 و شاشەی Liquid Retina XDR، بۆ دیزاین و کاری پیشەیی.",
+        "desc_ar": "ماك بوك برو 14 بوصة بمعالج M3 وشاشة Liquid Retina XDR، للتصميم والعمل الاحترافي.",
+        "desc_en": "A 14-inch MacBook Pro with the M3 chip and a Liquid Retina XDR display, great for design and pro work.",
+    },
+]

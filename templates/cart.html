@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}سەبەتەی کڕین | NEXORA{% endblock %}
+
+{% block content %}
+<section class="container section" id="cartPage">
+
+    <h1 class="section-title" style="margin-bottom:28px;">
+        <span>🛒</span>
+        <span data-i18n="cart.title">سەبەتەی کڕین</span>
+    </h1>
+
+    <div class="cart-layout">
+
+        <!-- لیستی کاڵاکانی ناو سەبەتە -->
+        <div class="cart-items-box" id="cartItems">
+            <p style="text-align:center; padding:40px; color:var(--muted);" data-i18n="cart.wait">تکایە چاوەڕێ بکە...</p>
+        </div>
+
+        <!-- کورتەی تێچوو و کرێی گەیاندن (Summary Box) -->
+        <div class="cart-summary-box" id="cartSummary" style="display:none;">
+            <h3 style="color:var(--amber-soft); margin-bottom:18px; font-weight:800;" data-i18n="cart.items_title">کورتەی داواکاری</h3>
+
+            <div class="summary-row">
+                <span data-i18n="cart.subtotal">کۆی کاڵاکان:</span>
+                <strong id="cartSubtotal" style="color:var(--text);">0 IQD</strong>
+            </div>
+
+            <div class="summary-row">
+                <span data-i18n="cart.delivery">کرێی گەیاندن:</span>
+                <strong id="cartDelivery" style="color:var(--amber-soft);">5,000 IQD</strong>
+            </div>
+
+            <div class="summary-row total-row">
+                <span data-i18n="cart.grand_total">کۆی گشتی کۆتایی:</span>
+                <strong id="cartGrandTotal">0 IQD</strong>
+            </div>
+
+            <!-- دوو دوگمەی داواکراو: ناردنی داواکاری و بەردەوام بە لە کڕین -->
+            <div class="cart-buttons-row">
+                <button type="button" class="btn-checkout" onclick="toggleCheckoutForm()">
+                    <span data-i18n="cart.submit">ناردنی داواکاری</span>
+                </button>
+                <a href="{{ url_for('all_products') }}" class="btn-continue">
+                    <span data-i18n="cart.continue">بەردەوام بە لە کڕین</span>
+                </a>
+            </div>
+
+            <!-- فۆرمی زانیاری کڕیار بۆ گەیاندن -->
+            <div class="checkout-form-box" id="checkoutFormBox">
+                <h4 style="color:var(--amber-soft); margin-bottom:14px; font-weight:700;" data-i18n="cart.info">زانیاری کڕیار بۆ گەیاندن</h4>
+                <form onsubmit="submitOrder(event)">
+                    <label data-i18n="cart.name">ناوی تەواو</label>
+                    <input type="text" name="full_name" required placeholder="ناوی تەواوی کڕیار" data-i18n-ph="ph.name">
+
+                    <label data-i18n="cart.phone">ژمارەی تەلەفۆن</label>
+                    <input type="tel" name="phone" required dir="ltr" placeholder="0750 123 4567">
+
+                    <label data-i18n="cart.city">شار</label>
+                    <input type="text" name="city" required placeholder="بۆ نموونە: هەولێر" data-i18n-ph="ph.city">
+
+                    <label data-i18n="cart.neighborhood">گەڕەک</label>
+                    <input type="text" name="neighborhood" required placeholder="ناوی گەڕەک و کۆڵان" data-i18n-ph="ph.neighborhood">
+
+                    <button type="submit" class="btn-checkout" id="submitOrderBtn" style="width:100%; margin-top:20px;">
+                        <span data-i18n="cart.submit">تەواوکردنی داواکاری</span>
+                    </button>
+                    <p id="orderMsg" class="order-msg"></p>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+{% endblock %}

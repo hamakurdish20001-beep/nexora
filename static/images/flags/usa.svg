@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7410 3900" width="741" height="390">
+  <rect width="7410" height="3900" fill="#b22234"/>
+  <path d="M0,450H7410M0,1050H7410M0,1650H7410M0,2250H7410M0,2850H7410M0,3450H7410" stroke="#fff" stroke-width="300"/>
+  <rect width="2964" height="2100" fill="#3c3b6e"/>
+  <g fill="#fff">
+    <g id="us_star">
+      <polygon points="0,-80 24.7,-4 95,-4 38,38 59,110 0,68 -59,110 -38,38 -95,-4 -24.7,-4" transform="scale(0.8)"/>
+    </g>
+    <g id="row6">
+      <use href="#us_star" x="247" y="175"/>
+      <use href="#us_star" x="741" y="175"/>
+      <use href="#us_star" x="1235" y="175"/>
+      <use href="#us_star" x="1729" y="175"/>
+      <use href="#us_star" x="2223" y="175"/>
+      <use href="#us_star" x="2717" y="175"/>
+    </g>
+    <g id="row5">
+      <use href="#us_star" x="494" y="350"/>
+      <use href="#us_star" x="988" y="350"/>
+      <use href="#us_star" x="1482" y="350"/>
+      <use href="#us_star" x="1976" y="350"/>
+      <use href="#us_star" x="2470" y="350"/>
+    </g>
+    <use href="#row6"/>
+    <use href="#row5"/>
+    <use href="#row6" y="350"/>
+    <use href="#row5" y="350"/>
+    <use href="#row6" y="700"/>
+    <use href="#row5" y="700"/>
+    <use href="#row6" y="1050"/>
+    <use href="#row5" y="1050"/>
+    <use href="#row6" y="1400"/>
+  </g>
+</svg>

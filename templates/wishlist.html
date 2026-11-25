@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}لیستی دڵخواز | NEXORA{% endblock %}
+
+{% block content %}
+<section class="container section">
+
+    <div class="section-header">
+        <h1 class="section-title">
+            <span>❤️</span>
+            <span data-i18n="wishlist.title">لیستی دڵخوازەکان</span>
+        </h1>
+        <a href="{{ url_for('all_products') }}" class="section-link" data-i18n="wishlist.explore">گەڕان لە بەرهەمەکان ←</a>
+    </div>
+
+    <div id="wishlistItems">
+        <p style="text-align:center; padding:50px; color:var(--muted);" data-i18n="cart.wait">تکایە چاوەڕێ بکە...</p>
+    </div>
+
+</section>
+
+<script>
+(function() {
+    function runLoad() {
+        if (typeof loadWishlistPage === 'function') {
+            loadWishlistPage();
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runLoad);
+    } else {
+        runLoad();
+    }
+    window.addEventListener('load', runLoad);
+})();
+</script>
+{% endblock %}

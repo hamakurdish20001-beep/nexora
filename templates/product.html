@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}{{ p['name'] }} | NEXORA{% endblock %}
+
+{% block content %}
+<section class="container section">
+
+    <div class="breadcrumb">
+        <a href="/" data-i18n="nav.home">سەرەکی</a> /
+        <a href="{{ url_for('all_products') }}" data-i18n="nav.all_products">هەموو بەشەکان</a> /
+        <a href="{{ url_for('category', slug=p['cat_slug']) }}"
+           data-ku="{{ p['cat_ku'] }}" data-ar="{{ p['cat_ar'] }}" data-en="{{ p['cat_en'] }}">{{ p['cat_ku'] }}</a> /
+        <span>{{ p['name'] }}</span>
+    </div>
+
+    <div class="detail">
+
+        <!-- گەلەری وێنەکان -->
+        <div class="gallery">
+            <div class="main-image">
+                <img id="mainImage"
+                     src="{{ url_for('static', filename='images/products/' ~ p['image']) }}"
+                     alt="{{ p['name'] }}"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+            </div>
+            {% if images|length > 1 %}
+            <div class="thumbs">
+                {% for img in images %}
+                <button type="button" class="thumb {% if loop.first %}active{% endif %}"
+                        data-src="{{ url_for('static', filename='images/products/' ~ img['image']) }}"
+                        onclick="showImage(this)">
+                    <img src="{{ url_for('static', filename='images/products/' ~ img['image']) }}"
+                         alt="" onerror="this.parentElement.style.display='none'">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- زانیاری بەرهەم -->
+        <div class="info">
+            <span class="brand">{{ p['brand_name'] }}</span>
+            <h1>{{ p['name'] }}</h1>
+
+            <div class="meta" style="margin:10px 0;">
+                {% if p['condition'] == 'used' %}
+                <span class="tag used" data-i18n="cond.used">دەستی دوو</span>
+                {% else %}
+                <span class="tag new" data-i18n="cond.new">نوێ</span>
+                {% endif %}
+            </div>
+
+            <div class="detail-price-wrap" style="margin: 14px 0;">
+                {% if p['discount_percent'] and p['discount_percent'] > 0 %}
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px; flex-wrap:wrap;">
+                    <span class="discount-badge-pill" style="position:static; font-size:0.95rem; padding:4px 12px;">-{{ p['discount_percent'] }}% داشکاندن</span>
+                    <span class="old-price-strikethrough" style="font-size:1.15rem;">{{ p['price'] | iqd }}</span>
+                </div>
+                <div class="detail-price new-discount-price" style="font-size:1.85rem; color:#f59e0b; font-weight:800;">{{ p['discount_price'] | iqd }}</div>
+                {% else %}
+                <div class="detail-price">{{ p['price'] | iqd }}</div>
+                {% endif %}
+            </div>
+
+            <p class="desc" data-ku="{{ p['desc_ku'] }}" data-ar="{{ p['desc_ar'] }}" data-en="{{ p['desc_en'] }}">{{ p['desc_ku'] }}</p>
+
+            {% if specs %}
+            <h3 class="sub-title" data-i18n="product.specs">تایبەتمەندییەکان</h3>
+            <ul class="specs" dir="ltr">
+                {% for s in specs %}
+                <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- چوارچێوەی تایبەت بۆ زیادکردن بۆ سەبەتە و دڵخواز -->
+            <div class="product-detail-actions">
+                <button type="button" class="add-btn" id="addToCart" onclick="addToCart({{ p['id'] }})">
+                    <svg class="cart-btn-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                        <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span data-i18n="product.add">زیادکردن بۆ سەبەتە</span>
+                </button>
+                <button type="button" class="action-btn wishlist-btn detail-wishlist-btn" data-id="{{ p['id'] }}"
+                        onclick="toggleWishlist({{ p['id'] }}, this)"
+                        title="لیستی دڵخواز">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ڤیدیۆی یوتیوب ئەگەر هەبێت -->
+    {% if p['video_id'] %}
+    <h2 class="section-title" data-i18n="sec.video">ڤیدیۆ</h2>
+    <div class="video-box">
+        <iframe src="https://www.youtube.com/embed/{{ p['video_id'] }}"
+                title="{{ p['name'] }}" allowfullscreen loading="lazy"></iframe>
+    </div>
+    {% endif %}
+
+    <!-- کاڵای هاوشێوە بە ستایلی ٤ -->
+        <!-- ناسێنەری کاڵای ئێستا بۆ سیستەمی دواین بینراوەکان -->
+    <div id="currentProductMeta" data-id="{{ p['id'] }}" style="display:none;"></div>
+
+    <!-- ١. بەرهەمە پەیوەندیدارەکان (Related Products) -->
+    {% if related %}
+    <div class="product-detail-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span data-i18n="sec.related">بەرهەمە پەیوەندیدارەکان</span>
+            </h2>
+        </div>
+        <div class="products-grid-4">
+            {% for r in related %}
+            <div class="product-card">
+                <a class="card-link" href="{{ url_for('product', product_id=r['id']) }}" aria-label="{{ r['name'] }}"></a>
+                <div class="product-img">
+                    <img src="{{ url_for('static', filename='images/products/' ~ r['image']) }}"
+                         alt="{{ r['name'] }}" loading="lazy"
+                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+
+                    {% if r['discount_percent'] and r['discount_percent'] > 0 %}
+                    <span class="discount-badge-pill">-{{ r['discount_percent'] }}%</span>
+                    {% endif %}
+
+                    <button type="button" class="wishlist-btn" data-id="{{ r['id'] }}"
+                            onclick="event.preventDefault();event.stopPropagation();toggleWishlist({{ r['id'] }}, this)"
+                            aria-label="Wishlist">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <span class="brand">{{ r['brand_name'] }}</span>
+                    <h3>{{ r['name'] }}</h3>
+                    <div class="product-price-row">
+                        {% if r['discount_percent'] and r['discount_percent'] > 0 %}
+                        <div class="price-discount-box">
+                            <span class="old-price-strikethrough">{{ r['price'] | iqd }}</span>
+                            <span class="price new-discount-price">{{ (r['price'] * (1 - r['discount_percent'] / 100.0)) | iqd }}</span>
+                        </div>
+                        {% else %}
+                        <div class="price">{{ r['price'] | iqd }}</div>
+                        {% endif %}
+                        <button type="button" class="add-cart-btn"
+                                onclick="event.preventDefault();event.stopPropagation();addToCart({{ r['id'] }})">
+                            <svg class="cart-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                                <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            <span data-i18n="product.add_short">زیادکردن</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ٢. بەرهەمەکانی تر (Other Products) -->
+    {% if other_products %}
+    <div class="product-detail-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span data-i18n="sec.other_products">بەرهەمەکانی تر</span>
+            </h2>
+        </div>
+        <div class="products-grid-4">
+            {% for o in other_products %}
+            <div class="product-card">
+                <a class="card-link" href="{{ url_for('product', product_id=o['id']) }}" aria-label="{{ o['name'] }}"></a>
+                <div class="product-img">
+                    <img src="{{ url_for('static', filename='images/products/' ~ o['image']) }}"
+                         alt="{{ o['name'] }}" loading="lazy"
+                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+
+                    {% if o['discount_percent'] and o['discount_percent'] > 0 %}
+                    <span class="discount-badge-pill">-{{ o['discount_percent'] }}%</span>
+                    {% endif %}
+
+                    <button type="button" class="wishlist-btn" data-id="{{ o['id'] }}"
+                            onclick="event.preventDefault();event.stopPropagation();toggleWishlist({{ o['id'] }}, this)"
+                            aria-label="Wishlist">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <span class="brand">{{ o['brand_name'] }}</span>
+                    <h3>{{ o['name'] }}</h3>
+                    <div class="product-price-row">
+                        {% if o['discount_percent'] and o['discount_percent'] > 0 %}
+                        <div class="price-discount-box">
+                            <span class="old-price-strikethrough">{{ o['price'] | iqd }}</span>
+                            <span class="price new-discount-price">{{ (o['price'] * (1 - o['discount_percent'] / 100.0)) | iqd }}</span>
+                        </div>
+                        {% else %}
+                        <div class="price">{{ o['price'] | iqd }}</div>
+                        {% endif %}
+                        <button type="button" class="add-cart-btn"
+                                onclick="event.preventDefault();event.stopPropagation();addToCart({{ o['id'] }})">
+                            <svg class="cart-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                                <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            <span data-i18n="product.add_short">زیادکردن</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ٣. دواین بینراوەکان (Recently Viewed Products) -->
+    <div class="product-detail-section" id="recentlyViewedSection" style="display:none;">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span data-i18n="sec.recently_viewed">دواین بینراوەکان</span>
+            </h2>
+        </div>
+        <div class="products-grid-4" id="recentlyViewedGrid">
+            <!-- لێرە لە ڕێگەی جاڤاسکریپتەوە کاڵاکانی پێشوو بە شێوەیەکی داینامیکی دادەنرێن -->
+        </div>
+    </div>
+
+</section>
+
+<script>
+function showImage(el) {
+    if (!el) return;
+    var btn = el.closest ? el.closest('.thumb') : el;
+    var src = btn.getAttribute('data-src') || (btn.dataset ? btn.dataset.src : '');
+    var main = document.getElementById('mainImage');
+    if (main && src) {
+        main.style.opacity = '0.35';
+        main.src = src;
+        setTimeout(function() { main.style.opacity = '1'; }, 100);
+    }
+    document.querySelectorAll('.thumb').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+}
+window.showImage = showImage;
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.thumbs .thumb').forEach(function(b) {
+        b.addEventListener('click', function(e) {
+            e.preventDefault();
+            showImage(this);
+        });
+    });
+});
+</script>
+{% endblock %}

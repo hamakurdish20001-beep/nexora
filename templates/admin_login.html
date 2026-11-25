@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}چوونەژوورەوەی بەڕێوبەر | NEXORA{% endblock %}
+
+{% block content %}
+<section class="container section">
+
+    <div class="admin-card">
+        <h2 data-i18n="admin.login_title">🔒 چوونەژوورەوەی بەڕێوبەر</h2>
+
+        {% if error %}
+        <div style="background:rgba(239,68,68,0.15); border:1px solid var(--danger); color:var(--danger); padding:10px 14px; border-radius:var(--radius-sm); margin-bottom:18px; text-align:center; font-size:0.9rem;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="admin-form">
+            <div class="form-group">
+                <label data-i18n="admin.username">ناوی بەکارهێنەر</label>
+                <input type="text" name="username" required autofocus placeholder="admin">
+            </div>
+
+            <div class="form-group">
+                <label data-i18n="admin.password">وشەی نهێنی</label>
+                <input type="password" name="password" required placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn-submit" data-i18n="admin.login_btn">چوونەژوورەوە</button>
+        </form>
+
+        <div class="admin-footer-links">
+            <span data-i18n="admin.no_account">هەژماری نوێ دروست دەکەیت؟</span>
+            <a href="{{ url_for('admin_signup') }}" data-i18n="admin.signup_title">تۆمارکردن</a>
+        </div>
+    </div>
+
+</section>
+{% endblock %}

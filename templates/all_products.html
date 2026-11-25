@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}هەموو بەشەکان | NEXORA{% endblock %}
+
+{% block content %}
+<section class="container section">
+
+    <!-- بەشی سەرەوە: ناو و ژمارەی بەرهەمەکان لە لای چەپ/ڕاست -->
+    <div class="products-page-header">
+        <div class="products-page-top">
+            <h1 class="section-title" style="margin-bottom:0;">
+                <span data-i18n="sec.all_products">هەموو بەرهەمەکان</span>
+            </h1>
+            <div class="products-count-badge">
+                <span>{{ total_count }}</span>
+                <span data-i18n="items.found">کاڵا بەردەستە</span>
+            </div>
+        </div>
+
+        <!-- فلتەر و سێرچ و بڕاند و ڕیزکردن (لە تەنیشت یەک بە شێوەیەکی پڕۆفیشناڵ) -->
+        <form method="get" action="{{ url_for('all_products') }}" id="filterForm">
+            {% if selected_category %}
+            <input type="hidden" name="category" value="{{ selected_category }}">
+            {% endif %}
+
+            <div class="filters-bar">
+                <!-- سێرچ کردن -->
+                <div class="search-field">
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="گەڕان بۆ کاڵا..." data-i18n-ph="search.placeholder">
+                </div>
+
+                <!-- بڕاندەکان -->
+                <select name="brand" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="" data-i18n="filter.all_brands">هەموو بڕاندەکان</option>
+                    {% for b in brands %}
+                    <option value="{{ b['name'] }}" {% if b['name'] == selected_brand %}selected{% endif %}>{{ b['name'] }}</option>
+                    {% endfor %}
+                </select>
+
+                <!-- ڕیزکردن (نرخی نزم بۆ بەرز، بەرز بۆ نزم، ناو ئەلف-یا، یا-ئەلف) -->
+                <select name="sort" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="" data-i18n="filter.sort_default">ڕیزکردنی بنەڕەتی</option>
+                    <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %} data-i18n="sort.price_asc">نرخ: نزم بۆ بەرز</option>
+                    <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %} data-i18n="sort.price_desc">نرخ: بەرز بۆ نزم</option>
+                    <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %} data-i18n="sort.name_asc">ناو: ئەلف - یا</option>
+                    <option value="name_desc" {% if selected_sort == 'name_desc' %}selected{% endif %} data-i18n="sort.name_desc">ناو: یا - ئەلف</option>
+                </select>
+
+                <button type="submit" class="btn-filter-apply" data-i18n="filter.apply">فلتەر بکە</button>
+                <a href="{{ url_for('all_products') }}" class="btn-filter-reset" data-i18n="filter.reset">پاککردنەوە</a>
+            </div>
+
+            <!-- مەودای نرخ (لە ١٠٠٠ تا ١٠,٠٠٠,٠٠٠ دینار) -->
+            <div class="price-range-box">
+                <div class="price-range-title">
+                    <span data-i18n="filter.price_range">مەودای نرخ (دینار)</span>:
+                    <span>1,000 IQD تا 10,000,000 IQD</span>
+                </div>
+                <div class="price-range-inputs">
+                    <div class="price-input-group">
+                        <span data-i18n="filter.from">لە:</span>
+                        <input type="number" name="min_price" value="{{ min_price }}" placeholder="1000" min="1000" max="10000000" step="5000">
+                        <span>IQD</span>
+                    </div>
+                    <div class="price-input-group">
+                        <span data-i18n="filter.to">بۆ:</span>
+                        <input type="number" name="max_price" value="{{ max_price }}" placeholder="10000000" min="1000" max="10000000" step="10000">
+                        <span>IQD</span>
+                    </div>
+                    <button type="submit" class="btn-filter-apply" style="padding:7px 18px; font-size:0.85rem;" data-i18n="filter.apply">جێبەجێکردن</button>
+                </div>
+            </div>
+
+            <!-- جۆرەکان / کەتەگۆریەکان (Category Chips) -->
+            <div class="category-chips">
+                <a href="{{ url_for('all_products', q=search_query, brand=selected_brand, sort=selected_sort, min_price=min_price, max_price=max_price) }}"
+                   class="cat-chip {% if not selected_category %}active{% endif %}" data-i18n="filter.all">
+                    هەموو بەشەکان
+                </a>
+                {% for c in categories %}
+                <a href="{{ url_for('all_products', category=c['slug'], q=search_query, brand=selected_brand, sort=selected_sort, min_price=min_price, max_price=max_price) }}"
+                   class="cat-chip {% if selected_category == c['slug'] %}active{% endif %}">
+                    <span data-ku="{{ c['name_ku'] }}" data-ar="{{ c['name_ar'] }}" data-en="{{ c['name_en'] }}">{{ c['name_ku'] }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </form>
+    </div>
+
+    <!-- تۆڕی کاڵاکان: بە شێوازی ٤ ئایتەم لە هەر ڕیزێکدا (4 Products Per Row) -->
+    {% if products %}
+    <div class="products-grid-4">
+        {% for p in products %}
+        <div class="product-card">
+            <a class="card-link" href="{{ url_for('product', product_id=p['id']) }}" aria-label="{{ p['name'] }}"></a>
+            <div class="product-img">
+                <img src="{{ url_for('static', filename='images/products/' ~ p['image']) }}"
+                     alt="{{ p['name'] }}" loading="lazy"
+                     onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/placeholder.svg') }}'">
+
+                <!-- دوگمەی دڵخواز لەسەر وێنە -->
+                <button type="button" class="wishlist-btn" data-id="{{ p['id'] }}"
+                        onclick="event.preventDefault();event.stopPropagation();toggleWishlist({{ p['id'] }}, this)"
+                        aria-label="Wishlist" title="لیستی دڵخواز">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </button>
+
+                {% if p['condition'] == 'used' %}
+                <span class="badge" data-i18n="cond.used">دەستی دوو</span>
+                {% endif %}
+            </div>
+            <div class="product-info">
+                <span class="brand">{{ p['brand_name'] }}</span>
+                <h3>{{ p['name'] }}</h3>
+                <div class="product-price-row">
+                    <div class="price">{{ p['price'] | iqd }}</div>
+                    <button type="button" class="add-cart-btn"
+                            onclick="event.preventDefault();event.stopPropagation();addToCart({{ p['id'] }})">
+                        <svg class="cart-btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                            <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        <span data-i18n="product.add_short">زیادکردن</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- پەڕەبەندی بە چوارگۆشە (Numbered Pagination) -->
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        <!-- دوگمەی پێشتر -->
+        {% if page > 1 %}
+        <a href="{{ url_for('all_products', page=page-1, category=selected_category, brand=selected_brand, sort=selected_sort, q=search_query, min_price=min_price, max_price=max_price) }}"
+           class="page-btn">
+            ‹ <span data-i18n="pagination.prev">پێشتر</span>
+        </a>
+        {% else %}
+        <button type="button" class="page-btn" disabled>‹</button>
+        {% endif %}
+
+        <!-- ژمارەی پەڕەکان لە چوارگۆشەدا -->
+        {% for p_num in range(1, total_pages + 1) %}
+            {% if p_num == page %}
+            <span class="page-btn active">{{ p_num }}</span>
+            {% elif p_num <= 3 or p_num >= total_pages - 1 or (p_num >= page - 1 and p_num <= page + 1) %}
+            <a href="{{ url_for('all_products', page=p_num, category=selected_category, brand=selected_brand, sort=selected_sort, q=search_query, min_price=min_price, max_price=max_price) }}"
+               class="page-btn">
+                {{ p_num }}
+            </a>
+            {% elif p_num == 4 or p_num == total_pages - 2 %}
+            <span class="page-btn" style="border:none; background:transparent;">...</span>
+            {% endif %}
+        {% endfor %}
+
+        <!-- دوگمەی دواتر -->
+        {% if page < total_pages %}
+        <a href="{{ url_for('all_products', page=page+1, category=selected_category, brand=selected_brand, sort=selected_sort, q=search_query, min_price=min_price, max_price=max_price) }}"
+           class="page-btn">
+            <span data-i18n="pagination.next">دواتر</span> ›
+        </a>
+        {% else %}
+        <button type="button" class="page-btn" disabled>›</button>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div style="text-align:center; padding:70px 20px;">
+        <div style="font-size:3.5rem; margin-bottom:12px;">🔍</div>
+        <h3 data-i18n="empty.none" style="margin-bottom:12px;">هیچ کاڵایەک نەدۆزرایەوە.</h3>
+        <p style="color:var(--muted); margin-bottom:20px;">تکایە فلتەرەکان پاک بکەرەوە یان بە ناوێکی تر بگەڕێ.</p>
+        <a href="{{ url_for('all_products') }}" class="btn-checkout" style="display:inline-block; padding:10px 24px;" data-i18n="filter.reset">پاککردنەوەی فلتەرەکان</a>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

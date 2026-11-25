@@ -1,0 +1,148 @@
+.breadcrumb { color: var(--muted); font-size: .9rem; margin-bottom: 25px; }
+.breadcrumb a:hover { color: #fbbf24; }
+
+.detail { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+
+/* گەلەری */
+.main-image {
+    background: #fff; border-radius: 16px; aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.main-image img { max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity 0.18s ease-in-out; }
+.thumbs { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.thumb {
+    width: 80px; height: 80px; background: #fff; border: 2px solid var(--border);
+    border-radius: 10px; padding: 4px; cursor: pointer; transition: all .2s;
+    user-select: none; -webkit-user-select: none;
+}
+.thumb img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+.thumb:hover { border-color: #fbbf24; transform: translateY(-2px); }
+.thumb.active { border-color: #f59e0b; box-shadow: 0 0 14px rgba(245, 158, 11, 0.6); }
+
+/* زانیاری */
+.info h1 { font-size: 1.9rem; margin: 6px 0 12px; }
+.tag { display: inline-block; padding: 3px 14px; border-radius: 20px; font-size: .85rem; }
+.tag.new { background: rgba(245, 158, 11, .18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+.tag.used { background: rgba(217, 119, 6, .2); color: #f59e0b; border: 1px solid rgba(217, 119, 6, 0.35); }
+.detail-price { font-size: 2.2rem; font-weight: 900; color: #fbbf24; margin: 16px 0; text-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
+.desc { color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+.sub-title { color: #fbbf24; margin-bottom: 12px; font-weight: 800; font-size: 1.2rem; }
+.specs { list-style: none; margin-bottom: 25px; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid rgba(245, 158, 11, 0.3); }
+.specs li { padding: 9px 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.15); color: #f8fafc; font-size: 0.95rem; }
+.specs li:nth-child(odd) { background: var(--card-surface); }
+.specs li:last-child { border-bottom: none; }
+
+/* چوارچێوەی تایبەت بۆ دوگمەی زیادکردن بۆ سەبەتە و دڵخواز */
+.product-detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 28px;
+    padding: 16px;
+    background: #0e0e12;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.add-btn {
+    flex: 1;
+    background: #f59e0b;
+    color: #000000 !important;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 14px 28px;
+    font-size: 1.15rem;
+    font-weight: 900;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);
+    transition: var(--transition);
+}
+
+.add-btn span {
+    color: #000000 !important;
+    font-weight: 900;
+}
+
+.add-btn .cart-btn-icon,
+.add-btn svg {
+    stroke: #000000 !important;
+    color: #000000 !important;
+    flex-shrink: 0;
+}
+
+.add-btn:hover {
+    background: #fbbf24;
+    box-shadow: 0 0 28px rgba(245, 158, 11, 0.75);
+    transform: translateY(-2px);
+    color: #000000 !important;
+}
+
+.add-btn:hover span {
+    color: #000000 !important;
+}
+
+.detail-wishlist-btn {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: var(--radius-sm) !important;
+    flex-shrink: 0;
+    position: static !important;
+}
+
+/* ڤیدیۆ */
+.video-box { position: relative; aspect-ratio: 16 / 9; margin-bottom: 40px; max-width: 900px; }
+.video-box iframe { width: 100%; height: 100%; border: 0; border-radius: 12px; }
+
+@media (max-width: 800px) {
+    .detail { grid-template-columns: 1fr; }
+}
+/* =====================================================
+   بەشەکانی خوارەوەی پەڕەی کاڵا (Related, Other, Recently Viewed)
+   ===================================================== */
+.product-detail-section {
+    margin-top: 55px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.product-detail-section .section-header {
+    margin-bottom: 22px;
+}
+
+.product-detail-section .section-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #f5f5f7;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.product-detail-section .section-title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 22px;
+    background: linear-gradient(to bottom, #f59e0b, #d97706);
+    border-radius: 4px;
+}
+
+/* پیشاندانی ئاسۆیی بەرهەمەکان (٤ دانە ٤ دانە) */
+.product-detail-section .products-grid-4 {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 20px !important;
+    width: 100%;
+}
+
+@media (max-width: 992px) {
+    .product-detail-section .products-grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+    }
+}
